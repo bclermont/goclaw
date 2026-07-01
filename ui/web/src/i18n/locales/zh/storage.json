@@ -1,10 +1,14 @@
 {
   "title": "存储",
-  "description": "工作区文件浏览器",
+  "description": "管理工作区文件和存储配置",
   "descriptionWithPath": "{{path}} — {{size}}",
   "sizeCacheInfo": "存储大小缓存60分钟",
   "unsupportedFile": "此文件类型不支持预览",
   "download": "下载",
+  "tabs": {
+    "files": "文件",
+    "configuration": "配置"
+  },
   "delete": {
     "fileTitle": "删除文件",
     "folderTitle": "删除文件夹",
@@ -21,5 +25,27 @@
   "toast": {
     "deleted": "文件已删除",
     "deleteFailed": "删除文件失败"
+  },
+  "storage": {
+    "currentBackend": "当前后端",
+    "backendInfo": "查看当前配置的存储后端",
+    "currentBackendLabel": "后端类型",
+    "backendPath": "存储路径",
+    "storageStats": "存储使用情况",
+    "storageStatsDesc": "查看当前存储利用率",
+    "statsUnavailable": "存储统计信息暂不可用",
+    "selectBackend": "迁移到另一个后端",
+    "selectBackendDesc": "选择不同的存储后端并开始迁移",
+    "availableBackends": "可用后端",
+    "selectBackendPlaceholder": "选择存储后端...",
+    "migrateButton": "开始迁移",
+    "initiatingMigration": "正在启动迁移...",
+    "migrationStatus": "迁移进度",
+    "migrationInProgress": "迁移进行中...",
+    "migrationComplete": "迁移完成成功",
+    "migrationCompleteMsg": "存储迁移已成功完成。后端现已激活。",
+    "migrationFailed": "迁移失败",
+    "progressLabel": "进度",
+    "retryMigration": "重试迁移"
   }
 }

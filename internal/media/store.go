@@ -8,14 +8,24 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/google/uuid"
 )
 
+// defaultBackendName is the backend name used when none is specified.
+const defaultBackendName = "local"
+
 // Store provides persistent media file storage scoped by session.
 // Files are organized as: {baseDir}/{sessionHash}/{uuid}.{ext}
+//
+// baseDir and backendName may be updated atomically during a migration; all
+// accesses must hold mu for at least a read lock.
 type Store struct {
-	baseDir string
+	mu          sync.RWMutex
+	baseDir     string
+	backendName string
+	migration   *MigrationManager
 }
 
 // NewStore creates a media store rooted at baseDir.
@@ -24,13 +34,39 @@ func NewStore(baseDir string) (*Store, error) {
 	if err := os.MkdirAll(baseDir, 0755); err != nil {
 		return nil, fmt.Errorf("media: create base dir: %w", err)
 	}
-	return &Store{baseDir: baseDir}, nil
+	return &Store{baseDir: baseDir, backendName: defaultBackendName}, nil
+}
+
+// BackendName returns the current backend identifier.
+func (s *Store) BackendName() string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.backendName
+}
+
+// BaseDir returns the current backend base directory.
+func (s *Store) BaseDir() string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.baseDir
+}
+
+// MigrationState returns the current migration state for the given ID.
+// Returns false if the ID is unknown or no migration has ever run.
+func (s *Store) MigrationState(migrationID string) (MigrationState, bool) {
+	s.mu.RLock()
+	mgr := s.migration
+	s.mu.RUnlock()
+	if mgr == nil {
+		return MigrationState{}, false
+	}
+	return mgr.GetMigrationStatus(migrationID)
 }
 
 // SaveFile moves or copies a file to persistent storage.
 // Returns the unique media ID and the destination path.
 func (s *Store) SaveFile(sessionKey, srcPath, mime string) (id string, dstPath string, err error) {
-	dir := s.sessionDir(sessionKey)
+	dir := s.sessionDirNow(sessionKey)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return "", "", fmt.Errorf("media: create session dir: %w", err)
 	}
@@ -51,7 +87,9 @@ func (s *Store) SaveFile(sessionKey, srcPath, mime string) (id string, dstPath s
 	if err := copyFile(srcPath, dstPath); err != nil {
 		return "", "", fmt.Errorf("media: copy file: %w", err)
 	}
-	_ = os.Remove(srcPath) // best-effort cleanup of source
+	if removeErr := os.Remove(srcPath); removeErr != nil {
+		slog.Warn("media: failed to remove source after copy", "path", srcPath, "error", removeErr)
+	}
 	return mediaID, dstPath, nil
 }
 
@@ -60,7 +98,11 @@ func (s *Store) SaveFile(sessionKey, srcPath, mime string) (id string, dstPath s
 func (s *Store) LoadPath(id string) (string, error) {
 	// Media files are stored as {sessionHash}/{id}.{ext}.
 	// Since we don't know the session hash, glob for the ID across all session dirs.
-	matches, err := filepath.Glob(filepath.Join(s.baseDir, "*", id+".*"))
+	s.mu.RLock()
+	base := s.baseDir
+	s.mu.RUnlock()
+
+	matches, err := filepath.Glob(filepath.Join(base, "*", id+".*"))
 	if err != nil {
 		return "", fmt.Errorf("media: glob for %s: %w", id, err)
 	}
@@ -72,7 +114,7 @@ func (s *Store) LoadPath(id string) (string, error) {
 
 // DeleteSession removes all media files for a session.
 func (s *Store) DeleteSession(sessionKey string) error {
-	dir := s.sessionDir(sessionKey)
+	dir := s.sessionDirNow(sessionKey)
 	if err := os.RemoveAll(dir); err != nil {
 		slog.Warn("media: failed to delete session dir", "dir", dir, "error", err)
 		return err
@@ -80,12 +122,17 @@ func (s *Store) DeleteSession(sessionKey string) error {
 	return nil
 }
 
-// sessionDir returns the directory path for a session's media files.
-// Uses first 12 chars of SHA-256 hash of sessionKey for filesystem safety.
-func (s *Store) sessionDir(sessionKey string) string {
+// sessionDirNow returns the directory path for a session's media files using
+// the current baseDir snapshot. Uses first 12 chars of SHA-256 hash of
+// sessionKey for filesystem safety.
+func (s *Store) sessionDirNow(sessionKey string) string {
+	s.mu.RLock()
+	base := s.baseDir
+	s.mu.RUnlock()
+
 	h := sha256.Sum256([]byte(sessionKey))
 	hash := fmt.Sprintf("%x", h[:6]) // 12 hex chars
-	return filepath.Join(s.baseDir, hash)
+	return filepath.Join(base, hash)
 }
 
 // ExtFromMime returns a file extension (with dot) for a MIME type.

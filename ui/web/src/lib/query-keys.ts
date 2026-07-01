@@ -147,4 +147,9 @@ export const queryKeys = {
     graph: (agentId: string, userId?: string) => ["kg", "graph", agentId, userId] as const,
     dedup: (agentId: string, userId?: string) => ["kg", "dedup", agentId, userId] as const,
   },
+  storage: {
+    config: ["storage", "config"] as const,
+    backends: ["storage", "backends"] as const,
+    migration: (migrationId: string) => ["storage", "migration", migrationId] as const,
+  },
 };

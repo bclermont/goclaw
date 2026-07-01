@@ -1,10 +1,14 @@
 {
   "title": "Storage",
-  "description": "Workspace file browser",
+  "description": "Manage workspace files and storage configuration",
   "descriptionWithPath": "{{path}} — {{size}}",
   "sizeCacheInfo": "Storage size is cached for 60 minutes",
   "unsupportedFile": "This file type is not supported for preview",
   "download": "Download",
+  "tabs": {
+    "files": "Files",
+    "configuration": "Configuration"
+  },
   "delete": {
     "fileTitle": "Delete file",
     "folderTitle": "Delete folder",
@@ -21,5 +25,27 @@
   "toast": {
     "deleted": "File deleted",
     "deleteFailed": "Failed to delete file"
+  },
+  "storage": {
+    "currentBackend": "Current Backend",
+    "backendInfo": "View the currently configured storage backend",
+    "currentBackendLabel": "Backend Type",
+    "backendPath": "Storage Path",
+    "storageStats": "Storage Usage",
+    "storageStatsDesc": "View current storage utilization",
+    "statsUnavailable": "Storage statistics are currently unavailable",
+    "selectBackend": "Migrate to Another Backend",
+    "selectBackendDesc": "Select a different storage backend and start migration",
+    "availableBackends": "Available Backends",
+    "selectBackendPlaceholder": "Choose a storage backend...",
+    "migrateButton": "Start Migration",
+    "initiatingMigration": "Initiating migration...",
+    "migrationStatus": "Migration Progress",
+    "migrationInProgress": "Migration in progress...",
+    "migrationComplete": "Migration completed successfully",
+    "migrationCompleteMsg": "Storage migration completed successfully. The backend is now active.",
+    "migrationFailed": "Migration failed",
+    "progressLabel": "Progress",
+    "retryMigration": "Retry Migration"
   }
 }

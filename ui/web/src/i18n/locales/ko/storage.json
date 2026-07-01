@@ -1,10 +1,14 @@
 {
   "title": "스토리지",
-  "description": "워크스페이스 파일 탐색기",
+  "description": "워크스페이스 파일 및 스토리지 구성 관리",
   "descriptionWithPath": "{{path}} — {{size}}",
   "sizeCacheInfo": "스토리지 크기는 60분간 캐시됩니다",
   "unsupportedFile": "이 파일 유형은 미리보기를 지원하지 않습니다",
   "download": "다운로드",
+  "tabs": {
+    "files": "파일",
+    "configuration": "구성"
+  },
   "delete": {
     "fileTitle": "파일 삭제",
     "folderTitle": "폴더 삭제",
@@ -21,5 +25,27 @@
   "toast": {
     "deleted": "파일 삭제됨",
     "deleteFailed": "파일 삭제 실패"
+  },
+  "storage": {
+    "currentBackend": "현재 백엔드",
+    "backendInfo": "현재 구성된 스토리지 백엔드 보기",
+    "currentBackendLabel": "백엔드 유형",
+    "backendPath": "스토리지 경로",
+    "storageStats": "스토리지 사용량",
+    "storageStatsDesc": "현재 스토리지 활용률 보기",
+    "statsUnavailable": "스토리지 통계는 현재 사용할 수 없습니다",
+    "selectBackend": "다른 백엔드로 마이그레이션",
+    "selectBackendDesc": "다른 스토리지 백엔드를 선택하고 마이그레이션을 시작합니다",
+    "availableBackends": "사용 가능한 백엔드",
+    "selectBackendPlaceholder": "스토리지 백엔드 선택...",
+    "migrateButton": "마이그레이션 시작",
+    "initiatingMigration": "마이그레이션 시작 중...",
+    "migrationStatus": "마이그레이션 진행률",
+    "migrationInProgress": "마이그레이션 진행 중...",
+    "migrationComplete": "마이그레이션 성공적으로 완료됨",
+    "migrationCompleteMsg": "스토리지 마이그레이션이 성공적으로 완료되었습니다. 백엔드가 이제 활성화됩니다.",
+    "migrationFailed": "마이그레이션 실패",
+    "progressLabel": "진행률",
+    "retryMigration": "마이그레이션 다시 시도"
   }
 }

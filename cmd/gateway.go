@@ -722,6 +722,11 @@ func runGateway() {
 	)
 	defer sched.Stop()
 
+	// Storage backend config + migration API — requires scheduler for drain signalling.
+	if mediaStore != nil {
+		server.SetStorageBackendHandler(httpapi.NewStorageBackendHandler(mediaStore, sched))
+	}
+
 	// Start cron + heartbeat ticker, wire wake functions and adaptive throttle.
 	heartbeatTicker := startCronAndHeartbeat(pgStores, server, sched, msgBus, providerRegistry, channelMgr, cfg, heartbeatTool, heartbeatMethods)
 

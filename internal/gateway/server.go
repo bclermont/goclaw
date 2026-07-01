@@ -576,6 +576,11 @@ func (s *Server) SetFilesHandler(h *httpapi.FilesHandler) { s.handlers = append(
 // SetStorageHandler sets the storage file management handler.
 func (s *Server) SetStorageHandler(h *httpapi.StorageHandler) { s.handlers = append(s.handlers, h) }
 
+// SetStorageBackendHandler sets the storage backend config + migration handler.
+func (s *Server) SetStorageBackendHandler(h *httpapi.StorageBackendHandler) {
+	s.handlers = append(s.handlers, h)
+}
+
 // SetMediaUploadHandler sets the media upload handler.
 func (s *Server) SetMediaUploadHandler(h *httpapi.MediaUploadHandler) {
 	s.handlers = append(s.handlers, h)
