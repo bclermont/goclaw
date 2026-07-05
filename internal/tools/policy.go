@@ -35,7 +35,7 @@ var builtinToolGroups = map[string][]string{
 		"message", "create_forum_topic", "list_group_members",
 		"read_image", "read_document", "read_audio", "read_video",
 		"create_image", "create_video", "create_audio",
-		"skill_search", "skill_manage", "publish_skill", "use_skill",
+		"skill_search", "skill_manage", "publish_skill", "use_skill", "skill_content",
 		"mcp_tool_search", "tts",
 		"team_tasks",
 	},

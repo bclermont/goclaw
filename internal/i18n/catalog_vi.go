@@ -226,6 +226,7 @@ func init() {
 		MsgToolUseSkill:           "Kích hoạt kỹ năng để sử dụng khả năng chuyên biệt (đánh dấu tracing)",
 		MsgToolSkillManage:        "Tạo, sửa hoặc xóa kỹ năng từ trải nghiệm hội thoại",
 		MsgToolPublishSkill:       "Đăng ký thư mục kỹ năng vào hệ thống, cho phép tìm kiếm và cấp quyền",
+		MsgToolSkillContent:       "Lấy nội dung markdown gốc của SKILL.md theo tên, slug hoặc ID từ cơ sở dữ liệu",
 		MsgToolTeamTasks:          "Xem, tạo, cập nhật và hoàn thành tác vụ trên bảng tác vụ nhóm",
 		MsgToolAnnouncementSingle: "Tôi sẽ dùng %s để xử lý bước tiếp theo.",
 		MsgToolAnnouncementMulti:  "Tôi sẽ dùng %s để xử lý bước tiếp theo.",

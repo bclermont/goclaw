@@ -226,6 +226,7 @@ func init() {
 		MsgToolUseSkill:           "激活技能以使用其专门功能（追踪标记）",
 		MsgToolSkillManage:        "从对话经验中创建、修补或删除技能",
 		MsgToolPublishSkill:       "将技能目录注册到系统数据库中，使其可被发现和授权",
+		MsgToolSkillContent:       "从数据库中按名称、slug 或 ID 获取技能的原始 SKILL.md markdown 内容",
 		MsgToolTeamTasks:          "查看、创建、更新和完成团队任务板上的任务",
 		MsgToolAnnouncementSingle: "我将使用 %s 处理下一步。",
 		MsgToolAnnouncementMulti:  "我将使用 %s 处理下一步。",

@@ -226,6 +226,7 @@ func init() {
 		MsgToolUseSkill:           "Activate a skill to use its specialized capabilities (tracing marker)",
 		MsgToolSkillManage:        "Create, patch, or delete skills from conversation experience",
 		MsgToolPublishSkill:       "Register a skill directory in the system database, making it discoverable",
+		MsgToolSkillContent:       "Fetch the raw SKILL.md markdown content of a skill by name, slug, or ID from the database",
 		MsgToolTeamTasks:          "View, create, update, and complete tasks on the team task board",
 		MsgToolAnnouncementSingle: "I'll use %s to handle the next step.",
 		MsgToolAnnouncementMulti:  "I'll use %s to handle the next step.",

@@ -264,6 +264,7 @@ const (
 	MsgToolUseSkill             = "core.tool.use_skill"
 	MsgToolSkillManage          = "core.tool.skill_manage"
 	MsgToolPublishSkill         = "core.tool.publish_skill"
+	MsgToolSkillContent         = "core.tool.skill_content"
 	MsgToolTeamTasks            = "core.tool.team_tasks"
 
 	// Skill evolution nudges (user-facing)
