@@ -17,6 +17,7 @@ import { useChatSend } from "./hooks/use-chat-send";
 import { isOwnSession, parseSessionKey } from "@/lib/session-key";
 import { useVirtualKeyboard } from "@/hooks/use-virtual-keyboard";
 import { TaskPanel } from "@/components/chat/task-panel";
+import { useChannelInstances } from "@/pages/channels/hooks/use-channel-instances";
 
 export function ChatPage() {
   const { t } = useTranslation("chat");
@@ -149,6 +150,11 @@ export function ChatPage() {
     abort(sessionKey);
   }, [abort, sessionKey]);
 
+  const { instances: channelInstances } = useChannelInstances();
+  const webcallChannel = agentId
+    ? channelInstances.find((ch) => ch.channel_type === "webcall" && ch.agent_key === agentId && ch.enabled)
+    : undefined;
+
   const isMobile = useIsMobile();
   useVirtualKeyboard();
   const [chatSidebarOpen, setChatSidebarOpen] = useState(false);
@@ -243,6 +249,8 @@ export function ChatPage() {
             onToggleTaskPanel={() => setTaskPanelOpen((v) => !v)}
             taskPanelOpen={taskPanelOpen}
             session={sessions.find((s) => s.key === sessionKey) ?? null}
+            sessionKey={sessionKey || undefined}
+            webcallChannelKey={webcallChannel?.name}
           />
         </div>
 

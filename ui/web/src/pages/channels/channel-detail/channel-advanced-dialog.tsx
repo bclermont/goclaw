@@ -36,6 +36,14 @@ const TELEGRAM_MANAGEMENT_KEYS = new Set(["telegram_manager.enabled", "telegram_
 export function getAdvancedFields(channelType: string) {
   const allFields = configSchema[channelType] ?? [];
   const advanced = allFields.filter((f) => !ESSENTIAL_CONFIG_KEYS.has(f.key));
+  const categorized = new Set([
+    ...Array.from(NETWORK_KEYS),
+    ...Array.from(LIMITS_KEYS),
+    ...Array.from(STREAMING_KEYS),
+    ...Array.from(BEHAVIOR_KEYS),
+    ...Array.from(ACCESS_KEYS),
+    ...Array.from(TELEGRAM_MANAGEMENT_KEYS),
+  ]);
   return {
     network: advanced.filter((f) => NETWORK_KEYS.has(f.key)),
     limits: advanced.filter((f) => LIMITS_KEYS.has(f.key)),
@@ -43,6 +51,8 @@ export function getAdvancedFields(channelType: string) {
     behavior: advanced.filter((f) => BEHAVIOR_KEYS.has(f.key) || f.key.startsWith("chat_behavior.")),
     access: advanced.filter((f) => ACCESS_KEYS.has(f.key)),
     telegramManagement: advanced.filter((f) => TELEGRAM_MANAGEMENT_KEYS.has(f.key)),
+    // Channel-specific fields that don't fall into generic categories
+    channelSpecific: advanced.filter((f) => !categorized.has(f.key) && !f.key.startsWith("chat_behavior.")),
   };
 }
 
@@ -218,6 +228,22 @@ export function ChannelAdvancedDialog({
                 values={values}
                 onChange={handleChange}
                 idPrefix="adv-tgm"
+              />
+            </>
+          )}
+
+          {groups.channelSpecific.length > 0 && (
+            <>
+              <ConfigGroupHeader
+                title={t("detail.channelConfig", { defaultValue: "Channel Configuration" })}
+                description={t("detail.channelConfigDesc", { defaultValue: "Settings specific to this channel type." })}
+              />
+              <ChannelFields
+                fields={groups.channelSpecific}
+                values={values}
+                onChange={handleChange}
+                idPrefix="adv-ch"
+                contextValues={values}
               />
             </>
           )}

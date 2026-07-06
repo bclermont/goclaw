@@ -7,8 +7,8 @@ ARG ENABLE_EMBEDUI=false
 # ── Stage 0: Build Web UI ──
 # BuildKit skips this stage entirely when ENABLE_EMBEDUI=false
 # because no downstream stage in the dependency graph references it.
-FROM node:22-alpine AS web-builder
-RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
+FROM node:26.4.0-alpine3.23 AS web-builder
+RUN npm install -g pnpm@10.28.2
 WORKDIR /app
 # Copy .npmrc first so pnpm resolves musl native bindings (needed on Alpine).
 # The lockfile already includes musl entries thanks to supportedArchitectures in .npmrc.
@@ -84,8 +84,9 @@ COPY docker/requirements-base.txt docker/requirements-skills.txt /tmp/
 # time.LoadLocation and Python zoneinfo in skill scripts) + optional runtimes.
 # ENABLE_FULL_SKILLS=true pre-installs all skill deps (larger image, no on-demand install needed).
 # Otherwise, skill packages are installed on-demand via the admin UI.
+# ffmpeg is required for Telegram voice calls (Opus encode/decode).
 RUN set -eux; \
-    apk add --no-cache ca-certificates wget su-exec tzdata; \
+    apk add --no-cache ca-certificates wget su-exec tzdata ffmpeg; \
     if [ "$ENABLE_SANDBOX" = "true" ]; then \
         apk add --no-cache docker-cli; \
     fi; \

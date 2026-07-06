@@ -1,3 +1,4 @@
+// Server-internal methods only. These return unscoped data across all tenants. Use with caution — only for admin/startup operations.
 package pg
 
 import (

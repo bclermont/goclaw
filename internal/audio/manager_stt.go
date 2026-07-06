@@ -63,6 +63,27 @@ func (m *Manager) RegisterChannelSTT(channelName string, providers ...STTProvide
 	m.channelSTTOverrides[channelName] = names
 }
 
+// STTProviderNames returns the ordered provider names that would be used when
+// Transcribe is called with the given channel name in context. Useful for
+// diagnostic logging before the actual transcription attempt.
+func (m *Manager) STTProviderNames(channelName string) []string {
+	if channelName != "" {
+		if overrides, ok := m.channelSTTOverrides[channelName]; ok && len(overrides) > 0 {
+			return overrides
+		}
+	}
+	if len(m.sttChain) > 0 {
+		return m.sttChain
+	}
+	var out []string
+	for _, name := range defaultSTTChain {
+		if _, ok := m.sttProviders[name]; ok {
+			out = append(out, name)
+		}
+	}
+	return out
+}
+
 // resolveSTTChain returns the ordered provider names for the current call.
 // Precedence: (1) channel override from ctx, (2) explicit m.sttChain,
 // (3) defaultSTTChain filtered to registered providers.

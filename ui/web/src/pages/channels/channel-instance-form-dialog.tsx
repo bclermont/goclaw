@@ -83,6 +83,23 @@ export function ChannelInstanceFormDialog({
     return idx >= 0 ? wizard.steps[idx + 1] ?? null : null;
   }, [wizard]);
 
+  const buildConfigValues = useCallback((ct: string, existingConfig?: Record<string, unknown>) => {
+    const schema = configSchema[ct] ?? [];
+    const defaults: Record<string, unknown> = {};
+    for (const f of schema) {
+      if (f.defaultValue !== undefined) defaults[f.key] = f.defaultValue;
+    }
+    const merged: Record<string, unknown> = { ...defaults, ...flattenConfig((existingConfig ?? {}) as Record<string, unknown>) };
+    const boolSelectKeys = new Set(
+      schema.filter((f: FieldDef) => f.type === "select" && f.options?.some((o) => o.value === "true")).map((f: FieldDef) => f.key),
+    );
+    for (const key of boolSelectKeys) {
+      if (typeof merged[key] === "boolean") merged[key] = String(merged[key]);
+      else if (merged[key] === undefined || merged[key] === null) merged[key] = "inherit";
+    }
+    return merged;
+  }, []);
+
   useEffect(() => {
     if (open) {
       form.reset({
@@ -93,28 +110,20 @@ export function ChannelInstanceFormDialog({
         enabled: instance?.enabled ?? true,
       });
       setCredsValues({});
-
       const ct = instance?.channel_type ?? "telegram";
-      const schema = configSchema[ct] ?? [];
-      const defaults: Record<string, unknown> = {};
-      for (const f of schema) {
-        if (f.defaultValue !== undefined) defaults[f.key] = f.defaultValue;
-      }
-      const merged: Record<string, unknown> = { ...defaults, ...flattenConfig((instance?.config ?? {}) as Record<string, unknown>) };
-      const boolSelectKeys = new Set(
-        schema.filter((f: FieldDef) => f.type === "select" && f.options?.some((o) => o.value === "true")).map((f: FieldDef) => f.key),
-      );
-      for (const key of boolSelectKeys) {
-        if (typeof merged[key] === "boolean") merged[key] = String(merged[key]);
-        else if (merged[key] === undefined || merged[key] === null) merged[key] = "inherit";
-      }
-      setConfigValues(merged);
+      setConfigValues(buildConfigValues(ct, (instance?.config ?? {}) as Record<string, unknown>));
       setError("");
       setStep("form");
       setCreatedInstanceId(null);
       setAuthCompleted(false);
     }
-  }, [open, instance, agents, form]);
+  }, [open, instance, agents, form, buildConfigValues]);
+
+  // Re-initialize config defaults when channel type changes (create only — editing keeps existing config)
+  useEffect(() => {
+    if (!open || instance) return;
+    setConfigValues(buildConfigValues(channelType));
+  }, [channelType, open, instance, buildConfigValues]);
 
   useEffect(() => {
     if (step !== "auth" || !authCompleted) return;

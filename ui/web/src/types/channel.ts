@@ -4,6 +4,7 @@ export interface ChannelInstanceData {
   display_name: string;
   channel_type: string;
   agent_id: string;
+  agent_key: string;
   config: Record<string, unknown> | null;
   enabled: boolean;
   is_default: boolean;

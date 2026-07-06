@@ -78,7 +78,7 @@ func (s *PGPairingStore) RequestPairing(ctx context.Context, senderID, channel, 
 }
 
 // ApprovePairing looks up by code (globally unique random token) and creates paired device.
-// The approver's tenant context determines paired_devices.tenant_id.
+// tenant_id is inherited from the pairing request row (pr.TenantID), not from the approver's context
 func (s *PGPairingStore) ApprovePairing(ctx context.Context, code, approvedBy string) (*store.PairedDeviceData, error) {
 	// Prune expired
 	s.db.ExecContext(ctx, "DELETE FROM pairing_requests WHERE expires_at < $1", time.Now())

@@ -60,6 +60,7 @@ export function ChannelInstanceFormStep({
   const credsFields = credentialsSchema[channelType] ?? [];
   const excludeSet = new Set(wizard?.excludeConfigFields ?? []);
   const cfgFields = configSchema[channelType] ?? [];
+  console.log("webcall schema at runtime:", configSchema["webcall"]);
   const formCfgFields = excludeSet.size > 0 ? cfgFields.filter((f: FieldDef) => !excludeSet.has(f.key)) : cfgFields;
   const hasWizard = !instance && !!wizard;
   const normalCfgFields = formCfgFields.filter((f: FieldDef) => !f.advanced);

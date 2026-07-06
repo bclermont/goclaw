@@ -108,6 +108,7 @@ export function useChatMessages(sessionKey: string, agentId: string) {
 
   // Load history
   const loadHistory = useCallback(async (mediaItems?: MediaItem[]) => {
+    console.log("[useChatMessages] loadHistory() called", { sessionKey, isConnected: ws.isConnected });
     if (!ws.isConnected || !sessionKey) { setLoading(false); return; }
     try {
       const res = await ws.call<{ messages: Message[] }>(Methods.CHAT_HISTORY, { agentId, sessionKey });
@@ -147,12 +148,40 @@ export function useChatMessages(sessionKey: string, agentId: string) {
     (payload: unknown) => {
       const event = payload as AgentEventPayload;
       if (!event) return;
-      if (event.channel && event.channel !== "ws" && !event.runKind) return;
-      if (event.sessionKey && event.sessionKey !== sessionKeyRef.current) return;
+
+      // DEBUG: log every incoming agent event
+      console.log("[useChatMessages] agent event received:", {
+        type: event.type,
+        channel: event.channel,
+        sessionKey: event.sessionKey,
+        runId: event.runId,
+        runKind: event.runKind,
+        agentId: event.agentId,
+        currentSessionKey: sessionKeyRef.current,
+        currentRunId: runIdRef.current,
+      });
+
+      // Allow events from non-ws channels (e.g. webcall) when they share our
+      // session key — the session key check below handles further filtering.
+      // Only drop non-ws events that have no session key at all (e.g. Telegram
+      // broadcast events that don't belong to this chat view).
+      if (event.channel && event.channel !== "ws" && !event.runKind && !event.sessionKey) {
+        console.log("[useChatMessages] event DROPPED: non-ws channel with no sessionKey/runKind", { channel: event.channel, type: event.type });
+        return;
+      }
+      if (event.sessionKey && event.sessionKey !== sessionKeyRef.current) {
+        console.log("[useChatMessages] event DROPPED: sessionKey mismatch", { eventSessionKey: event.sessionKey, currentSessionKey: sessionKeyRef.current });
+        return;
+      }
+
+      console.log("[useChatMessages] event PASSED channel filter:", { type: event.type, sessionKey: event.sessionKey });
 
       // Capture run.started
       if (event.type === "run.started" && event.agentId === agentIdRef.current) {
-        if (expectingRunRef.current || event.runKind === "announce") {
+        console.log("[useChatMessages] run.started received, capturing runId:", event.runId, { expectingRun: expectingRunRef.current, runKind: event.runKind, sessionKey: event.sessionKey });
+        // Accept run from: expected WS send, delegation announce, or any run on
+        // our session (e.g. voice call via webcall channel reusing the same session).
+        if (expectingRunRef.current || event.runKind === "announce" || event.sessionKey === sessionKeyRef.current) {
           runIdRef.current = event.runId;
           expectingRunRef.current = false;
           setSessionRunning(sessionKeyRef.current, true);
@@ -164,6 +193,34 @@ export function useChatMessages(sessionKey: string, agentId: string) {
           streamFilterRef.current = createThinkTagStreamFilterState();
           toolStreamRef.current = [];
         }
+        return;
+      }
+
+      // For run.completed events on the current session, always reload history
+      // unconditionally — regardless of whether we captured run.started or have
+      // a runId. This covers cross-channel runs (webcall, Telegram) where the
+      // agentId or runId may differ from what the UI captured.
+      if (event.type === "run.completed" && event.sessionKey === sessionKeyRef.current) {
+        console.log("[useChatMessages] run.completed for current session, reloading history unconditionally:", sessionKeyRef.current, { hadRunId: runIdRef.current });
+        cancelAnimationFrame(rafHandleRef.current); rafPendingRef.current = false;
+        setSessionRunning(sessionKeyRef.current, false);
+        runIdRef.current = null;
+        setSessionStream(sessionKeyRef.current, null);
+        setSessionThinking(sessionKeyRef.current, null);
+        setToolStream([]);
+        streamRef.current = "";
+        thinkingRef.current = "";
+        toolStreamRef.current = [];
+        activityRef.current = null;
+        setActivity(null);
+        blockRepliesRef.current = [];
+        setBlockReplies([]);
+        const rawMedia = event.payload?.media;
+        const mediaItems: MediaItem[] | undefined = rawMedia?.length
+          ? rawMedia.map((m) => ({ path: toFileUrl(m.path), mimeType: m.content_type ?? "application/octet-stream", fileName: m.path.split("?")[0]?.split("/").pop() ?? "file", size: m.size, kind: mediaKindFromMime(m.content_type ?? "") }))
+          : undefined;
+        console.log("loadHistory ACTUALLY CALLED");
+        loadHistory(mediaItems);
         return;
       }
 
@@ -242,33 +299,8 @@ export function useChatMessages(sessionKey: string, agentId: string) {
           setActivity(activityRef.current);
           break;
         }
-        case "run.completed": {
-          cancelAnimationFrame(rafHandleRef.current); rafPendingRef.current = false;
-          setSessionRunning(sessionKeyRef.current, false);
-          runIdRef.current = null;
-          const hadTools = toolStreamRef.current.length > 0;
-          const streamed = streamRef.current;
-          const thinking = thinkingRef.current || undefined;
-          setSessionStream(sessionKeyRef.current, null);
-          setSessionThinking(sessionKeyRef.current, null);
-          setToolStream([]);
-          streamRef.current = "";
-          thinkingRef.current = "";
-          streamFilterRef.current = createThinkTagStreamFilterState();
-          toolStreamRef.current = [];
-          activityRef.current = null;
-          setActivity(null);
-          blockRepliesRef.current = [];
-          setBlockReplies([]);
-          const rawMedia = event.payload?.media;
-          const mediaItems: MediaItem[] | undefined = rawMedia?.length
-            ? rawMedia.map((m) => ({ path: toFileUrl(m.path), mimeType: m.content_type ?? "application/octet-stream", fileName: m.path.split("?")[0]?.split("/").pop() ?? "file", size: m.size, kind: mediaKindFromMime(m.content_type ?? "") }))
-            : undefined;
-          if (streamed && !hadTools) {
-            updateSessionMessages(sessionKeyRef.current, (prev) => [...prev, { role: "assistant", content: streamed, thinking, timestamp: Date.now(), mediaItems }]);
-          } else { loadHistory(mediaItems); }
-          break;
-        }
+        // run.completed is handled above (before the runId gate) unconditionally
+        // for the current session. It will never reach this switch.
         case "run.failed": {
           cancelAnimationFrame(rafHandleRef.current); rafPendingRef.current = false;
           setSessionRunning(sessionKeyRef.current, false);

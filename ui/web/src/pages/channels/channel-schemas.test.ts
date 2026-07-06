@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { configSchema } from "./channel-schemas";
+import { configSchema, credentialsSchema } from "./channel-schemas";
 import { deliveryModelKey, isDeliveryModelKey, isDeliveryProviderKey } from "./channel-delivery-provider-fields";
 import { normalizeReasoningDeliveryConfig, resolveReasoningDeliveryValue } from "./reasoning-delivery-config";
 
@@ -173,5 +173,82 @@ describe("pancake configSchema", () => {
     expect(f).toBeDefined();
     expect(f!.type).toBe("tags");
     expect(f!.showWhen).toEqual({ key: "features.auto_react", value: "true" });
+  });
+});
+
+describe("webcall schemas", () => {
+  const creds = credentialsSchema["webcall"]!;
+  const config = configSchema["webcall"]!;
+
+  it("defines credentials and config schemas", () => {
+    expect(creds).toBeDefined();
+    expect(config).toBeDefined();
+  });
+
+  it("credentials schema is empty (no credentials needed)", () => {
+    expect(creds).toHaveLength(0);
+  });
+
+  it("exposes livekit_url as a required text field with default", () => {
+    const f = config.find((x) => x.key === "livekit_url")!;
+    expect(f).toBeDefined();
+    expect(f.type).toBe("text");
+    expect(f.required).toBe(true);
+    expect(f.defaultValue).toBe("wss://livekit.robotinfra.com");
+  });
+
+  it("exposes livekit_api_key as a required password field", () => {
+    const f = config.find((x) => x.key === "livekit_api_key")!;
+    expect(f).toBeDefined();
+    expect(f.type).toBe("password");
+    expect(f.required).toBe(true);
+  });
+
+  it("exposes livekit_api_secret as a required password field", () => {
+    const f = config.find((x) => x.key === "livekit_api_secret")!;
+    expect(f).toBeDefined();
+    expect(f.type).toBe("password");
+    expect(f.required).toBe(true);
+  });
+
+  it("exposes greeting as a textarea", () => {
+    const f = config.find((x) => x.key === "greeting")!;
+    expect(f).toBeDefined();
+    expect(f.type).toBe("textarea");
+  });
+
+  it("exposes allow_from as tags", () => {
+    const f = config.find((x) => x.key === "allow_from")!;
+    expect(f).toBeDefined();
+    expect(f.type).toBe("tags");
+  });
+
+  it("exposes max_call_seconds as a number with default 300", () => {
+    const f = config.find((x) => x.key === "max_call_seconds")!;
+    expect(f).toBeDefined();
+    expect(f.type).toBe("number");
+    expect(f.defaultValue).toBe(300);
+  });
+
+  it("exposes voice_agent_id and tts_voice_id as text fields", () => {
+    expect(config.find((x) => x.key === "voice_agent_id")!.type).toBe("text");
+    expect(config.find((x) => x.key === "tts_voice_id")!.type).toBe("text");
+  });
+
+  it.each([
+    "stt_proxy_url",
+    "stt_api_key",
+    "stt_tenant_id",
+    "stt_timeout_seconds",
+  ])("marks %s as advanced", (key) => {
+    const f = config.find((x) => x.key === key)!;
+    expect(f).toBeDefined();
+    expect(f.advanced).toBe(true);
+  });
+
+  it("does not expose TURN server fields", () => {
+    expect(config.find((x) => x.key === "turn_urls")).toBeUndefined();
+    expect(config.find((x) => x.key === "turn_username")).toBeUndefined();
+    expect(config.find((x) => x.key === "turn_password")).toBeUndefined();
   });
 });

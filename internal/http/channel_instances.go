@@ -238,9 +238,25 @@ func (h *ChannelInstancesHandler) handleList(w http.ResponseWriter, r *http.Requ
 
 	total, _ := h.store.CountInstances(r.Context(), opts)
 
+	// Build agent UUID → agent_key map for batch lookup.
+	agentIDs := make([]uuid.UUID, 0, len(instances))
+	for _, inst := range instances {
+		agentIDs = append(agentIDs, inst.AgentID)
+	}
+	agentKeyMap := map[uuid.UUID]string{}
+	if len(agentIDs) > 0 {
+		agentList, err := h.agentStore.GetByIDs(r.Context(), agentIDs)
+		if err != nil {
+			slog.Warn("channel_instances.list.agent_keys", "error", err)
+		}
+		for _, ag := range agentList {
+			agentKeyMap[ag.ID] = ag.AgentKey
+		}
+	}
+
 	result := make([]map[string]any, 0, len(instances))
 	for _, inst := range instances {
-		result = append(result, maskInstanceHTTP(inst))
+		result = append(result, maskInstanceHTTP(inst, agentKeyMap[inst.AgentID]))
 	}
 
 	writeJSON(w, http.StatusOK, map[string]any{
@@ -309,7 +325,7 @@ func (h *ChannelInstancesHandler) handleCreate(w http.ResponseWriter, r *http.Re
 
 	h.emitCacheInvalidate(inst.ID.String())
 	emitAudit(h.msgBus, r, "channel_instance.created", "channel_instance", inst.ID.String())
-	writeJSON(w, http.StatusCreated, maskInstanceHTTP(*inst))
+	writeJSON(w, http.StatusCreated, maskInstanceHTTP(*inst, h.resolveAgentKey(r.Context(), inst.AgentID)))
 }
 
 func (h *ChannelInstancesHandler) handleGet(w http.ResponseWriter, r *http.Request) {
@@ -326,7 +342,7 @@ func (h *ChannelInstancesHandler) handleGet(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	writeJSON(w, http.StatusOK, maskInstanceHTTP(*inst))
+	writeJSON(w, http.StatusOK, maskInstanceHTTP(*inst, h.resolveAgentKey(r.Context(), inst.AgentID)))
 }
 
 func (h *ChannelInstancesHandler) handleUpdate(w http.ResponseWriter, r *http.Request) {
@@ -438,13 +454,16 @@ func (h *ChannelInstancesHandler) handleDelete(w http.ResponseWriter, r *http.Re
 }
 
 // maskInstanceHTTP returns a map with credentials masked for HTTP responses.
-func maskInstanceHTTP(inst store.ChannelInstanceData) map[string]any {
+// agentKey is the string key for the agent (agent_key column); pass empty string
+// if the lookup failed — the field will still be included as an empty string.
+func maskInstanceHTTP(inst store.ChannelInstanceData, agentKey string) map[string]any {
 	result := map[string]any{
 		"id":              inst.ID,
 		"name":            inst.Name,
 		"display_name":    inst.DisplayName,
 		"channel_type":    inst.ChannelType,
 		"agent_id":        inst.AgentID,
+		"agent_key":       agentKey,
 		"config":          inst.Config,
 		"enabled":         inst.Enabled,
 		"is_default":      store.IsDefaultChannelInstance(inst.Name),
@@ -473,6 +492,18 @@ func maskInstanceHTTP(inst store.ChannelInstanceData) map[string]any {
 }
 
 // --- Group file writers ---
+
+// resolveAgentKey looks up an agent by UUID and returns its agent_key string.
+// Returns an empty string (not an error) if the lookup fails, so callers can
+// still return a response — the field will simply be empty.
+func (h *ChannelInstancesHandler) resolveAgentKey(ctx context.Context, agentID uuid.UUID) string {
+	ag, err := h.agentStore.GetByID(ctx, agentID)
+	if err != nil {
+		slog.Warn("channel_instances.resolve_agent_key", "agent_id", agentID, "error", err)
+		return ""
+	}
+	return ag.AgentKey
+}
 
 // resolveAgentID looks up the channel instance and returns its agent_id.
 func (h *ChannelInstancesHandler) resolveAgentID(w http.ResponseWriter, r *http.Request) (uuid.UUID, bool) {
@@ -799,7 +830,7 @@ func (h *ChannelInstancesHandler) handleResolveContacts(w http.ResponseWriter, r
 // ui/web/src/constants/channels.ts.
 func isValidChannelType(ct string) bool {
 	switch ct {
-	case "telegram", "discord", "slack", "whatsapp", "zalo_oa", "zalo_personal", "feishu", "facebook", "pancake", "bitrix24":
+	case "telegram", "webcall", "discord", "slack", "whatsapp", "zalo_oa", "zalo_personal", "feishu", "facebook", "pancake", "bitrix24":
 		return true
 	}
 	return false

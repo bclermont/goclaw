@@ -560,6 +560,50 @@
     "private_reply_message": {
       "label": "Nội dung DM",
       "help": "Hỗ trợ biến commenter_name và post_title. Để trống dùng mặc định tiếng Anh."
+    },
+    "livekit_url": {
+      "label": "URL máy chủ LiveKit",
+      "help": "URL WebSocket của máy chủ LiveKit"
+    },
+    "livekit_api_key": {
+      "label": "API Key LiveKit",
+      "help": "API key từ cấu hình máy chủ LiveKit"
+    },
+    "livekit_api_secret": {
+      "label": "API Secret LiveKit",
+      "help": "API secret từ cấu hình máy chủ LiveKit"
+    },
+    "greeting": {
+      "label": "Lời chào",
+      "help": "Được đọc cho người gọi khi cuộc gọi kết nối. Để trống để bỏ qua."
+    },
+    "tts_provider": {
+      "label": "Nhà cung cấp TTS",
+      "help": "Nhà cung cấp chuyển văn bản thành giọng nói. Edge (mặc định) không cần API key. OpenAI, ElevenLabs và MiniMax cần API key được cấu hình trong thông tin xác thực channel."
+    },
+    "tts_voice_id": {
+      "label": "Giọng TTS",
+      "help": "Định danh giọng dùng cho phản hồi chuyển văn bản thành giọng nói."
+    },
+    "max_call_seconds": {
+      "label": "Thời lượng cuộc gọi tối đa (giây)",
+      "help": "Ngắt máy sau số giây này. 0 = không giới hạn."
+    },
+    "stt_proxy_url": {
+      "label": "URL proxy STT",
+      "help": "Điểm cuối proxy chuyển giọng nói thành văn bản để phiên âm âm thanh của người gọi."
+    },
+    "stt_api_key": {
+      "label": "API Key STT",
+      "help": "API key cho proxy STT."
+    },
+    "stt_tenant_id": {
+      "label": "Tenant ID STT",
+      "help": "Định danh tenant gửi tới proxy STT."
+    },
+    "stt_timeout_seconds": {
+      "label": "Thời gian chờ STT (giây)",
+      "help": "Thời gian chờ tối đa cho phản hồi phiên âm STT."
     }
   },
   "fieldOptions": {
@@ -655,6 +699,12 @@
       "auto": "Tự động",
       "raw": "Thô",
       "card": "Thẻ"
+    },
+    "tts_provider": {
+      "edge": "Edge (Miễn phí)",
+      "openai": "OpenAI",
+      "elevenlabs": "ElevenLabs",
+      "minimax": "MiniMax"
     },
     "platform": {
       "facebook": "Facebook",

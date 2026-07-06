@@ -88,6 +88,7 @@ export const credentialsSchema: Record<string, FieldDef[]> = {
   telegram: [
     { key: "token", label: "Bot Token", type: "password", required: true, placeholder: "123456:ABC-DEF...", help: "From @BotFather" },
   ],
+  webcall: [],
   discord: [
     { key: "token", label: "Bot Token", type: "password", required: true, placeholder: "Discord bot token" },
   ],
@@ -168,6 +169,26 @@ export const configSchema: Record<string, FieldDef[]> = {
     { key: "telegram_manager.enabled", label: "Telegram Management Tool", type: "boolean", defaultValue: false, help: "Enable the hidden Telegram-only management tool for agents using this channel." },
     { key: "telegram_manager.allowed_actions", label: "Telegram Management Permissions", type: "multi-select", options: telegramManagerActionOptions, help: "Choose which Telegram management actions the hidden tool may run for agents using this channel. The tool stays hidden unless at least one permission is selected." },
     ...chatBehaviorOverrideFields,
+  ],
+  // ✓ NEW BUILD MARKER 20260625 - Verify TypeScript compilation
+  webcall: [
+    { key: "livekit_url", label: "LiveKit Server URL", type: "text", required: true, defaultValue: "wss://livekit.robotinfra.com", placeholder: "wss://livekit.example.com", help: "LiveKit server WebSocket URL" },
+    { key: "livekit_api_key", label: "LiveKit API Key", type: "password", required: true, help: "API key from LiveKit server config" },
+    { key: "livekit_api_secret", label: "LiveKit API Secret", type: "password", required: true, help: "API secret from LiveKit server config" },
+    { key: "greeting", label: "Greeting", type: "textarea", placeholder: "Hello! How can I help you today?", help: "Spoken to the caller when the call connects. Leave empty to skip." },
+    { key: "tts_provider", label: "TTS Provider *", type: "select", required: true, defaultValue: "edge", options: [
+      { value: "edge", label: "Edge (Free)" },
+      { value: "openai", label: "OpenAI" },
+      { value: "elevenlabs", label: "ElevenLabs" },
+      { value: "minimax", label: "MiniMax" },
+    ], help: "Text-to-speech provider for voice output. Edge requires no credentials." },
+    { key: "tts_voice_id", label: "TTS Voice", type: "text", placeholder: "alloy", help: "Voice identifier used for text-to-speech replies." },
+    { key: "max_call_seconds", label: "Max Call Duration (seconds)", type: "number", defaultValue: 300, help: "Hang up after this many seconds. 0 = no limit." },
+    { key: "allow_from", label: "Allowed Callers", type: "tags", help: "User IDs allowed to call via the browser. Empty = accept all." },
+    { key: "stt_proxy_url", label: "STT Proxy URL", type: "text", placeholder: "https://stt.example.com", help: "Speech-to-text proxy endpoint for transcribing the caller's audio." },
+    { key: "stt_api_key", label: "STT API Key", type: "password", help: "API key for the STT proxy.", advanced: true },
+    { key: "stt_tenant_id", label: "STT Tenant ID", type: "text", help: "Tenant identifier passed to the STT proxy.", advanced: true },
+    { key: "stt_timeout_seconds", label: "STT Timeout (seconds)", type: "number", defaultValue: 30, help: "Maximum wait for an STT transcription response.", advanced: true },
   ],
   discord: [
     { key: "dm_policy", label: "DM Policy", type: "select", options: dmPolicyOptions, defaultValue: "pairing" },

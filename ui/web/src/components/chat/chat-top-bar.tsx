@@ -6,6 +6,7 @@ import { useAuthStore } from "@/stores/use-auth-store";
 import type { RunActivity, ActiveTeamTask } from "@/types/chat";
 import type { AgentData } from "@/types/agent";
 import type { SessionInfo } from "@/types/session";
+import { WebCallButton } from "@/components/webcall";
 
 interface ChatTopBarProps {
   agentId: string;
@@ -17,6 +18,13 @@ interface ChatTopBarProps {
   taskPanelOpen?: boolean;
   /** Current session — when provided, the bar renders a context-usage badge. */
   session?: SessionInfo | null;
+  /**
+   * When provided, renders a voice call button that connects to a webcall
+   * channel. The value is the channel key (e.g. "my-voice-bot").
+   */
+  webcallChannelKey?: string;
+  /** Current chat session key — passed to WebCallButton so the voice call continues in the same session. */
+  sessionKey?: string;
 }
 
 const phaseLabels: Record<RunActivity["phase"], string> = {
@@ -28,7 +36,7 @@ const phaseLabels: Record<RunActivity["phase"], string> = {
   leader_processing: "Processing team results…",
 };
 
-export function ChatTopBar({ agentId, isRunning, isBusy, activity, teamTasks, onToggleTaskPanel, taskPanelOpen, session }: ChatTopBarProps) {
+export function ChatTopBar({ agentId, isRunning, isBusy, activity, teamTasks, onToggleTaskPanel, taskPanelOpen, session, webcallChannelKey, sessionKey }: ChatTopBarProps) {
   const http = useHttp();
   const { t } = useTranslation("chat");
   const connected = useAuthStore((s) => s.connected);
@@ -93,6 +101,9 @@ export function ChatTopBar({ agentId, isRunning, isBusy, activity, teamTasks, on
       </div>
 
       <div className="flex items-center gap-2">
+        {webcallChannelKey && (
+          <WebCallButton channelKey={webcallChannelKey} agentId={agentId} sessionKey={sessionKey} />
+        )}
         {usage && (
           <div
             className={`hidden sm:flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] ${usage.color}`}

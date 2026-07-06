@@ -73,6 +73,7 @@ func buildSkillEmbeddingTenantCond(scope string) string {
 }
 
 // BackfillSkillEmbeddings generates embeddings for all active skills that don't have one yet.
+// cross-tenant admin sweep: called at startup to backfill embeddings for all skills across all tenants
 func (s *PGSkillStore) BackfillSkillEmbeddings(ctx context.Context) (int, error) {
 	if s.embProvider == nil {
 		return 0, nil

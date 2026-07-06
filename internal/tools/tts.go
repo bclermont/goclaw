@@ -264,8 +264,23 @@ func (t *TtsTool) Execute(ctx context.Context, args map[string]any) *Result {
 	mgr := t.manager
 	t.mu.RUnlock()
 
-	// Determine format based on channel (read from ctx — thread-safe)
+	// Determine format based on channel name and type (read from ctx — thread-safe).
+	// ToolChannelFromCtx returns the channel instance name (e.g. "webcall-prod").
+	// ToolChannelTypeFromCtx returns the platform type (e.g. "webcall", "telegram").
 	channel := ToolChannelFromCtx(ctx)
+	channelType := ToolChannelTypeFromCtx(ctx)
+
+	// Webcall sessions handle TTS synthesis internally via LiveKit audio track
+	// publishing (publishTTSToRoom). Using the tts tool in a webcall context would
+	// produce a file-based MEDIA: path that gets stripped from the final content,
+	// resulting in an empty reply — no audio is published to the call. Guide the
+	// agent to reply with plain text so the webcall channel synthesises it instead.
+	if channelType == "webcall" {
+		return &Result{
+			ForLLM: "info: voice calls handle speech synthesis automatically — reply with plain text instead of using the tts tool. The text will be spoken aloud to the caller.",
+		}
+	}
+
 	opts := tts.Options{Voice: voice, Model: model}
 	if channel == "telegram" {
 		opts.Format = "opus"

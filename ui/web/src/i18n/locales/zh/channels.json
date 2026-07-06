@@ -560,6 +560,50 @@
     "private_reply_message": {
       "label": "私信内容",
       "help": "支持 commenter_name 和 post_title 占位符。留空使用英文默认文本。"
+    },
+    "livekit_url": {
+      "label": "LiveKit 服务器 URL",
+      "help": "LiveKit 服务器 WebSocket 地址"
+    },
+    "livekit_api_key": {
+      "label": "LiveKit API 密钥",
+      "help": "来自 LiveKit 服务器配置的 API 密钥"
+    },
+    "livekit_api_secret": {
+      "label": "LiveKit API 密钥",
+      "help": "来自 LiveKit 服务器配置的 API 密钥"
+    },
+    "greeting": {
+      "label": "问候语",
+      "help": "通话接通时向来电者播报。留空则跳过。"
+    },
+    "tts_provider": {
+      "label": "TTS 提供商",
+      "help": "文本转语音提供商。Edge（默认）无需凭据。OpenAI、ElevenLabs 和 MiniMax 需要在 Channel 凭据中配置 API Key。"
+    },
+    "tts_voice_id": {
+      "label": "TTS 语音",
+      "help": "用于文本转语音回复的语音标识。"
+    },
+    "max_call_seconds": {
+      "label": "最大通话时长（秒）",
+      "help": "超过该秒数后挂断。0 = 不限制。"
+    },
+    "stt_proxy_url": {
+      "label": "STT 代理 URL",
+      "help": "用于转写来电者音频的语音转文本代理端点。"
+    },
+    "stt_api_key": {
+      "label": "STT API 密钥",
+      "help": "STT 代理的 API 密钥。"
+    },
+    "stt_tenant_id": {
+      "label": "STT 租户 ID",
+      "help": "传递给 STT 代理的租户标识。"
+    },
+    "stt_timeout_seconds": {
+      "label": "STT 超时（秒）",
+      "help": "等待 STT 转写响应的最长时间。"
     }
   },
   "fieldOptions": {
@@ -655,6 +699,12 @@
       "auto": "自动",
       "raw": "原始",
       "card": "卡片"
+    },
+    "tts_provider": {
+      "edge": "Edge（免费）",
+      "openai": "OpenAI",
+      "elevenlabs": "ElevenLabs",
+      "minimax": "MiniMax"
     },
     "platform": {
       "facebook": "Facebook",

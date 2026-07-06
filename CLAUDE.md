@@ -23,7 +23,8 @@ internal/
 ├── bootstrap/                System prompt files (SOUL.md, IDENTITY.md) + seeding + per-user seed
 ├── bus/                      Event bus system
 ├── cache/                    Caching layer
-├── channels/                 Channel manager: Telegram, Feishu/Lark, Zalo, Discord, WhatsApp
+├── channels/                 Channel manager: Telegram, Feishu/Lark, Zalo, Discord, WhatsApp, webcall
+│   ├── webcall/              Browser WebRTC voice call channel (pion/webrtc HTTP signaling, ffmpeg for audio transcoding)
 │   └── whatsapp/             Native WhatsApp via whatsmeow (v3)
 ├── config/                   Config loading (JSON5) + env var overlay
 ├── consolidation/            Memory consolidation workers (episodic, semantic, dreaming) (v3)
@@ -102,11 +103,18 @@ Every feature implementation or bug fix must audit and update all affected produ
 
 Do not ship a backend-only change when the web UI, CLI/runtime package, or API contract must also change. If a surface is not affected, state `Surface parity: <surface> N/A because ...` in the plan, PR, or final report. For cross-repo CLI work, verify the current CLI/runtime package repo and release channel before claiming parity.
 
+## Runtime Dependencies
+
+| Dependency | Required for | Notes |
+|------------|-------------|-------|
+| `ffmpeg` (with `libopus`) | `webcall` channel audio transcoding | Must be in PATH; goclaw degrades gracefully if absent (logs warning, disables voice I/O). Must be added to Docker image for containerised deployments. |
+
 ## Running
 
 ```bash
 go build -o goclaw . && ./goclaw onboard && source .env.local && ./goclaw
 ./goclaw migrate up                 # DB migrations
+# No login CLI needed for webcall — the channel uses browser WebRTC signaling, no account required
 # Integration tests (requires pgvector pg18 on port 5433)
 docker run -d --name pgtest -p 5433:5432 -e POSTGRES_PASSWORD=test -e POSTGRES_DB=goclaw_test pgvector/pgvector:pg18
 TEST_DATABASE_URL="postgres://postgres:test@localhost:5433/goclaw_test?sslmode=disable" \

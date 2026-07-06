@@ -375,10 +375,11 @@ func (h *ProvidersHandler) registerInMemory(p *store.LLMProviderData) providerRu
 	return providerRuntimeRegistered
 }
 
-// resolveOllamaNumCtx returns the num_ctx to pass to NewOllamaProvider. Priority:
+// resolveOllamaNumCtx returns the num_ctx to pass to NewOllamaProvider, or nil
+// when the built-in default should apply. Priority:
 //  1. User-configured num_ctx from provider settings JSONB.
 //  2. Value queried from Ollama /api/show.
-//  3. OllamaDefaultNumCtx (131072) — never nil, so Ollama always uses a large context window.
+//  3. nil (OllamaProvider omits options.num_ctx, using Ollama's model default).
 func (h *ProvidersHandler) resolveOllamaNumCtx(p *store.LLMProviderData, apiBase, apiKey string) *int {
 	slog.Debug("ollama.startup: resolveOllamaNumCtx called", "provider", p.Name, "api_base", apiBase)
 	if s := store.ParseOllamaSettings(p.Settings); s != nil {

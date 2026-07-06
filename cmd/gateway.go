@@ -870,6 +870,7 @@ func runGateway() {
 		// identically to before — the MCPStore arg is nil-safe inside the
 		// factory.
 		instanceLoader.RegisterFactory(channels.TypeBitrix24, bitrix24.FactoryWithPortalStoreAndMCP(pgStores.BitrixPortals, pgStores.MCP, bitrixEncKey))
+		registerWebCallFactory(instanceLoader, audioMgr, pgStores.Sessions)
 		if err := instanceLoader.LoadAll(context.Background()); err != nil {
 			slog.Error("failed to load channel instances from DB", "error", err)
 		}

@@ -34,6 +34,7 @@ func (s *PGTeamStore) generateTaskEmbedding(ctx context.Context, taskID uuid.UUI
 }
 
 // BackfillTaskEmbeddings generates embeddings for all tasks that don't have one yet.
+// cross-tenant admin sweep: backfills embeddings for all task in all tenants at startup
 func (s *PGTeamStore) BackfillTaskEmbeddings(ctx context.Context) (int, error) {
 	if s.embProvider == nil {
 		return 0, nil

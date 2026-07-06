@@ -561,6 +561,50 @@
     "private_reply_message": {
       "label": "DM Message",
       "help": "Supports the placeholders commenter_name and post_title. Empty = default English text."
+    },
+    "livekit_url": {
+      "label": "LiveKit Server URL",
+      "help": "LiveKit server WebSocket URL"
+    },
+    "livekit_api_key": {
+      "label": "LiveKit API Key",
+      "help": "API key from LiveKit server config"
+    },
+    "livekit_api_secret": {
+      "label": "LiveKit API Secret",
+      "help": "API secret from LiveKit server config"
+    },
+    "greeting": {
+      "label": "Greeting",
+      "help": "Spoken to the caller when the call connects. Leave empty to skip."
+    },
+    "tts_provider": {
+      "label": "TTS Provider",
+      "help": "Text-to-speech provider for voice output. Edge (default) requires no credentials. OpenAI, ElevenLabs, and MiniMax require API keys configured in channel credentials."
+    },
+    "tts_voice_id": {
+      "label": "TTS Voice",
+      "help": "Voice identifier used for text-to-speech replies."
+    },
+    "max_call_seconds": {
+      "label": "Max Call Duration (seconds)",
+      "help": "Hang up after this many seconds. 0 = no limit."
+    },
+    "stt_proxy_url": {
+      "label": "STT Proxy URL",
+      "help": "Speech-to-text proxy endpoint for transcribing the caller's audio."
+    },
+    "stt_api_key": {
+      "label": "STT API Key",
+      "help": "API key for the STT proxy."
+    },
+    "stt_tenant_id": {
+      "label": "STT Tenant ID",
+      "help": "Tenant identifier passed to the STT proxy."
+    },
+    "stt_timeout_seconds": {
+      "label": "STT Timeout (seconds)",
+      "help": "Maximum wait for an STT transcription response."
     }
   },
   "fieldOptions": {
@@ -656,6 +700,12 @@
       "auto": "Auto",
       "raw": "Raw",
       "card": "Card"
+    },
+    "tts_provider": {
+      "edge": "Edge (Free)",
+      "openai": "OpenAI",
+      "elevenlabs": "ElevenLabs",
+      "minimax": "MiniMax"
     },
     "platform": {
       "facebook": "Facebook",

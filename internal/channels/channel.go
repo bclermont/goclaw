@@ -80,6 +80,7 @@ const (
 	TypePancake      = "pancake"
 	TypeSlack        = "slack"
 	TypeTelegram     = "telegram"
+	TypeWebCall      = "webcall"
 	TypeWhatsApp     = "whatsapp"
 	TypeZaloOA       = "zalo_oa"
 	TypeZaloPersonal = "zalo_personal"

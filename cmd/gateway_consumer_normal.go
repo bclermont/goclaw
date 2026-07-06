@@ -107,6 +107,13 @@ func processNormalMessage(
 		}
 	}
 
+	// Caller-supplied session key override: channels such as webcall pass the
+	// browser's existing WS chat session key so that voice and text share one
+	// conversation history. Takes precedence over all derived keys above.
+	if msg.SessionKey != "" {
+		sessionKey = msg.SessionKey
+	}
+
 	// Group-scoped UserID: context files, memory, traces, and seeding scope.
 	// See deriveGroupUserID for the precedence (Discord guild → openline
 	// participant → group fallback). Individual senderID is preserved in

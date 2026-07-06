@@ -50,6 +50,7 @@ func (s *PGAgentStore) generateAgentEmbedding(ctx context.Context, agentID uuid.
 }
 
 // BackfillAgentEmbeddings generates embeddings for all active agents that have frontmatter but no embedding.
+// cross-tenant admin sweep: backfills embeddings for all agents across all tenants (currently unused)
 func (s *PGAgentStore) BackfillAgentEmbeddings(ctx context.Context) (int, error) {
 	if s.embProvider == nil {
 		return 0, nil

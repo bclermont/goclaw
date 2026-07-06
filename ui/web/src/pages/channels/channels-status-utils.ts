@@ -9,6 +9,7 @@ export type ChannelStatus = ChannelRuntimeStatus;
 
 export const channelTypeLabels: Record<string, string> = {
   telegram: "Telegram",
+  webcall: "Browser Voice Call",
   discord: "Discord",
   slack: "Slack",
   feishu: "Feishu / Lark",
