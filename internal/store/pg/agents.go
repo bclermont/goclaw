@@ -95,7 +95,7 @@ const agentSelectCols = `id, agent_key, display_name, frontmatter, owner_id, pro
 		 self_evolve, skill_evolve, skill_nudge_interval,
 		 reasoning_config, workspace_sharing, chatgpt_oauth_routing,
 		 model_fallback, shell_deny_groups, kg_dedup_config,
-		 agent_type, is_default, status, budget_monthly_cents, created_at, updated_at, tenant_id`
+		 agent_type, is_default, is_public, status, budget_monthly_cents, created_at, updated_at, tenant_id`
 
 // sqlExecer is satisfied by both *sql.DB and *sql.Tx, allowing helper
 // functions to be called within or outside a transaction.
@@ -130,9 +130,9 @@ func (s *PGAgentStore) Create(ctx context.Context, agent *store.AgentData) error
 		 self_evolve, skill_evolve, skill_nudge_interval,
 		 reasoning_config, workspace_sharing, chatgpt_oauth_routing,
 		 model_fallback, shell_deny_groups, kg_dedup_config,
-		 agent_type, is_default, status, budget_monthly_cents, created_at, updated_at, tenant_id)
+		 agent_type, is_default, is_public, status, budget_monthly_cents, created_at, updated_at, tenant_id)
 		 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,
-		         $19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38)`,
+		         $19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38,$39)`,
 		agent.ID, agent.AgentKey, agent.DisplayName, sql.NullString{String: agent.Frontmatter, Valid: agent.Frontmatter != ""}, agent.OwnerID, agent.Provider, agent.Model,
 		agent.ContextWindow, agent.MaxToolIterations, agent.Workspace, agent.RestrictToWorkspace,
 		jsonOrEmpty(agent.ToolsConfig), jsonOrNull(agent.SandboxConfig), jsonOrNull(agent.SubagentsConfig), jsonOrNull(agent.MemoryConfig),
@@ -141,7 +141,7 @@ func (s *PGAgentStore) Create(ctx context.Context, agent *store.AgentData) error
 		agent.SelfEvolve, agent.SkillEvolve, agent.SkillNudgeInterval,
 		jsonOrEmpty(agent.ReasoningConfig), jsonOrEmpty(agent.WorkspaceSharing), jsonOrEmpty(agent.ChatGPTOAuthRouting),
 		jsonOrEmpty(agent.ModelFallback), jsonOrEmpty(agent.ShellDenyGroups), jsonOrEmpty(agent.KGDedupConfig),
-		agent.AgentType, agent.IsDefault, agent.Status, agent.BudgetMonthlyCents, now, now, tenantID,
+		agent.AgentType, agent.IsDefault, agent.IsPublic, agent.Status, agent.BudgetMonthlyCents, now, now, tenantID,
 	)
 	if err != nil {
 		return fmt.Errorf("insert agent: %w", err)
@@ -235,9 +235,9 @@ func (s *PGAgentStore) Update(ctx context.Context, id uuid.UUID, updates map[str
 		}
 	}
 	// Promoted INT/BOOL columns: null → 0/false.
-	for _, col := range []string{"skill_nudge_interval", "max_tokens", "self_evolve", "skill_evolve", "is_default"} {
+	for _, col := range []string{"skill_nudge_interval", "max_tokens", "self_evolve", "skill_evolve", "is_default", "is_public"} {
 		if v, ok := updates[col]; ok && v == nil {
-			if col == "self_evolve" || col == "skill_evolve" || col == "is_default" {
+			if col == "self_evolve" || col == "skill_evolve" || col == "is_default" || col == "is_public" {
 				updates[col] = false
 			} else {
 				updates[col] = 0
@@ -506,27 +506,27 @@ func (s *PGAgentStore) ListShares(ctx context.Context, agentID uuid.UUID) ([]sto
 }
 
 func (s *PGAgentStore) CanAccess(ctx context.Context, agentID uuid.UUID, userID string) (bool, string, error) {
-	// Check ownership + default flag
+	// Check ownership + default/public flags
 	var ownerID string
-	var isDefault bool
+	var isDefault, isPublic bool
 	var err error
 	if store.IsCrossTenant(ctx) {
 		err = s.db.QueryRowContext(ctx,
-			"SELECT owner_id, is_default FROM agents WHERE id = $1 AND deleted_at IS NULL", agentID,
-		).Scan(&ownerID, &isDefault)
+			"SELECT owner_id, is_default, is_public FROM agents WHERE id = $1 AND deleted_at IS NULL", agentID,
+		).Scan(&ownerID, &isDefault, &isPublic)
 	} else {
 		tid := store.TenantIDFromContext(ctx)
 		if tid == uuid.Nil {
 			return false, "", fmt.Errorf("agent not found")
 		}
 		err = s.db.QueryRowContext(ctx,
-			"SELECT owner_id, is_default FROM agents WHERE id = $1 AND deleted_at IS NULL AND tenant_id = $2", agentID, tid,
-		).Scan(&ownerID, &isDefault)
+			"SELECT owner_id, is_default, is_public FROM agents WHERE id = $1 AND deleted_at IS NULL AND tenant_id = $2", agentID, tid,
+		).Scan(&ownerID, &isDefault, &isPublic)
 	}
 	if err != nil {
 		return false, "", fmt.Errorf("agent not found")
 	}
-	if isDefault {
+	if isDefault || isPublic {
 		if ownerID == userID {
 			return true, "owner", nil
 		}
@@ -564,6 +564,7 @@ func (s *PGAgentStore) ListAccessible(ctx context.Context, userID string) ([]sto
 			 WHERE deleted_at IS NULL AND (
 			     owner_id = $1
 			     OR is_default = true
+			     OR is_public = true
 			     OR id IN (SELECT agent_id FROM agent_shares WHERE user_id = $1)
 			     OR (
 			         agent_type = 'predefined'
@@ -594,6 +595,7 @@ func (s *PGAgentStore) ListAccessible(ctx context.Context, userID string) ([]sto
 		 WHERE deleted_at IS NULL AND tenant_id = $2 AND (
 		     owner_id = $1
 		     OR is_default = true
+		     OR is_public = true
 		     OR id IN (SELECT agent_id FROM agent_shares WHERE user_id = $1 AND tenant_id = $2)
 		     OR (
 		         agent_type = 'predefined'
@@ -633,7 +635,7 @@ func scanAgentRow(row agentRowScanner) (*store.AgentData, error) {
 		&d.Emoji, &d.AgentDescription, &d.ThinkingLevel, &d.MaxTokens,
 		&d.SelfEvolve, &d.SkillEvolve, &d.SkillNudgeInterval,
 		&reasoningCfg, &wsCfg, &oauthCfg, &fallbackCfg, &shellCfg, &kgCfg,
-		&d.AgentType, &d.IsDefault, &d.Status, &d.BudgetMonthlyCents, &d.CreatedAt, &d.UpdatedAt, &d.TenantID)
+		&d.AgentType, &d.IsDefault, &d.IsPublic, &d.Status, &d.BudgetMonthlyCents, &d.CreatedAt, &d.UpdatedAt, &d.TenantID)
 	if err != nil {
 		return nil, err
 	}

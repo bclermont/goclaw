@@ -60,8 +60,8 @@ func (s *SQLiteAgentStore) Create(ctx context.Context, agent *store.AgentData) e
 		 self_evolve, skill_evolve, skill_nudge_interval,
 		 reasoning_config, workspace_sharing, chatgpt_oauth_routing,
 		 model_fallback, shell_deny_groups, kg_dedup_config,
-		 agent_type, is_default, status, budget_monthly_cents, created_at, updated_at, tenant_id)
-		 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+		 agent_type, is_default, is_public, status, budget_monthly_cents, created_at, updated_at, tenant_id)
+		 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
 		agent.ID, agent.AgentKey,
 		agent.DisplayName,
 		sql.NullString{String: agent.Frontmatter, Valid: agent.Frontmatter != ""},
@@ -73,7 +73,7 @@ func (s *SQLiteAgentStore) Create(ctx context.Context, agent *store.AgentData) e
 		agent.SelfEvolve, agent.SkillEvolve, agent.SkillNudgeInterval,
 		jsonOrEmpty(agent.ReasoningConfig), jsonOrEmpty(agent.WorkspaceSharing), jsonOrEmpty(agent.ChatGPTOAuthRouting),
 		jsonOrEmpty(agent.ModelFallback), jsonOrEmpty(agent.ShellDenyGroups), jsonOrEmpty(agent.KGDedupConfig),
-		agent.AgentType, agent.IsDefault, agent.Status, agent.BudgetMonthlyCents,
+		agent.AgentType, agent.IsDefault, agent.IsPublic, agent.Status, agent.BudgetMonthlyCents,
 		now, now, tenantID,
 	)
 	return err
@@ -143,9 +143,9 @@ func (s *SQLiteAgentStore) Update(ctx context.Context, id uuid.UUID, updates map
 		}
 	}
 	// Promoted INT/BOOL columns: null → 0/false.
-	for _, col := range []string{"skill_nudge_interval", "max_tokens", "self_evolve", "skill_evolve", "is_default"} {
+	for _, col := range []string{"skill_nudge_interval", "max_tokens", "self_evolve", "skill_evolve", "is_default", "is_public"} {
 		if v, ok := updates[col]; ok && v == nil {
-			if col == "self_evolve" || col == "skill_evolve" || col == "is_default" {
+			if col == "self_evolve" || col == "skill_evolve" || col == "is_default" || col == "is_public" {
 				updates[col] = false
 			} else {
 				updates[col] = 0
@@ -284,7 +284,7 @@ func scanAgentRow(row agentRowScanner) (*store.AgentData, error) {
 		&d.Emoji, &d.AgentDescription, &d.ThinkingLevel, &d.MaxTokens,
 		&d.SelfEvolve, &d.SkillEvolve, &d.SkillNudgeInterval,
 		&reasoningCfg, &wsCfg, &oauthCfg, &fallbackCfg, &shellCfg, &kgCfg,
-		&d.AgentType, &d.IsDefault, &d.Status, &d.BudgetMonthlyCents,
+		&d.AgentType, &d.IsDefault, &d.IsPublic, &d.Status, &d.BudgetMonthlyCents,
 		createdAt, updatedAt, &d.TenantID,
 	)
 	if err != nil {

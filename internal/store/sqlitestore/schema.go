@@ -16,7 +16,7 @@ var schemaSQL string
 
 // SchemaVersion is the current SQLite schema version.
 // Bump this when adding new migration steps below.
-const SchemaVersion = 53
+const SchemaVersion = 54
 
 // migrations maps version → SQL to apply when upgrading FROM that version.
 // schema.sql always represents the LATEST full schema (for fresh DBs).
@@ -891,6 +891,11 @@ ALTER TABLE usage_events ADD COLUMN thinking_tokens BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE usage_event_rollups ADD COLUMN cache_read_tokens BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE usage_event_rollups ADD COLUMN cache_create_tokens BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE usage_event_rollups ADD COLUMN thinking_tokens BIGINT NOT NULL DEFAULT 0;`,
+
+	// Version 53 → 54: agents.is_public lets any number of agents grant
+	// access to any user without an explicit share, independent of the
+	// singleton is_default flag. Mirrors PG migration 000090.
+	53: `ALTER TABLE agents ADD COLUMN is_public BOOLEAN NOT NULL DEFAULT 0;`,
 }
 
 const addUsageEventAnalyticsTables = `
@@ -1509,6 +1514,8 @@ func idempotentColumnMigration(version int) (string, string, bool) {
 		return "secure_cli_binaries", "adapter_name", true
 	case 51:
 		return "webhook_calls", "last_heartbeat_at", true
+	case 53:
+		return "agents", "is_public", true
 	default:
 		return "", "", false
 	}

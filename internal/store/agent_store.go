@@ -56,7 +56,13 @@ type AgentData struct {
 	RestrictToWorkspace bool      `json:"restrict_to_workspace" db:"restrict_to_workspace"`
 	AgentType           string    `json:"agent_type" db:"agent_type"` // "open" or "predefined"
 	IsDefault           bool      `json:"is_default" db:"is_default"`
-	Status              string    `json:"status" db:"status"`
+	// IsPublic grants any user (including anonymous/unauthenticated callers
+	// identified only by an arbitrary X-GoClaw-User-Id) access to this agent
+	// without an explicit agent_shares grant. Unlike IsDefault, this is not
+	// a singleton — any number of agents may be public independently, which
+	// is what IsDefault's single-fallback-agent semantics cannot express.
+	IsPublic bool   `json:"is_public" db:"is_public"`
+	Status   string `json:"status" db:"status"`
 
 	// Budget: optional monthly spending limit in cents (nil = unlimited)
 	BudgetMonthlyCents *int `json:"budget_monthly_cents,omitempty" db:"budget_monthly_cents"`

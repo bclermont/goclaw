@@ -76,26 +76,26 @@ func (s *SQLiteAgentStore) ListShares(ctx context.Context, agentID uuid.UUID) ([
 
 func (s *SQLiteAgentStore) CanAccess(ctx context.Context, agentID uuid.UUID, userID string) (bool, string, error) {
 	var ownerID string
-	var isDefault bool
+	var isDefault, isPublic bool
 	var err error
 	if store.IsCrossTenant(ctx) {
 		err = s.db.QueryRowContext(ctx,
-			"SELECT owner_id, is_default FROM agents WHERE id = ? AND deleted_at IS NULL", agentID,
-		).Scan(&ownerID, &isDefault)
+			"SELECT owner_id, is_default, is_public FROM agents WHERE id = ? AND deleted_at IS NULL", agentID,
+		).Scan(&ownerID, &isDefault, &isPublic)
 	} else {
 		tid := store.TenantIDFromContext(ctx)
 		if tid == uuid.Nil {
 			return false, "", fmt.Errorf("agent not found")
 		}
 		err = s.db.QueryRowContext(ctx,
-			"SELECT owner_id, is_default FROM agents WHERE id = ? AND deleted_at IS NULL AND tenant_id = ?",
+			"SELECT owner_id, is_default, is_public FROM agents WHERE id = ? AND deleted_at IS NULL AND tenant_id = ?",
 			agentID, tid,
-		).Scan(&ownerID, &isDefault)
+		).Scan(&ownerID, &isDefault, &isPublic)
 	}
 	if err != nil {
 		return false, "", fmt.Errorf("agent not found")
 	}
-	if isDefault {
+	if isDefault || isPublic {
 		if ownerID == userID {
 			return true, "owner", nil
 		}
@@ -134,6 +134,7 @@ func (s *SQLiteAgentStore) ListAccessible(ctx context.Context, userID string) ([
 			 WHERE deleted_at IS NULL AND (
 			     owner_id = ?
 			     OR is_default = 1
+			     OR is_public = 1
 			     OR id IN (SELECT agent_id FROM agent_shares WHERE user_id = ?)
 			     OR (agent_type = 'predefined' AND id IN (
 			         SELECT agent_id FROM channel_instances ci
@@ -161,6 +162,7 @@ func (s *SQLiteAgentStore) ListAccessible(ctx context.Context, userID string) ([
 		 WHERE deleted_at IS NULL AND tenant_id = ? AND (
 		     owner_id = ?
 		     OR is_default = 1
+		     OR is_public = 1
 		     OR id IN (SELECT agent_id FROM agent_shares WHERE user_id = ? AND tenant_id = ?)
 		     OR (agent_type = 'predefined' AND id IN (
 		         SELECT agent_id FROM channel_instances ci
