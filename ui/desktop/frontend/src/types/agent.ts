@@ -84,6 +84,7 @@ export interface AgentData {
   restrict_to_workspace: boolean
   agent_type: 'open' | 'predefined'
   is_default: boolean
+  is_public: boolean
   status: string // "active" | "summoning" | "summon_failed" | "idle" | "running"
   created_at?: string
   updated_at?: string
@@ -115,6 +116,7 @@ export interface AgentInput {
   model: string
   agent_type: 'open' | 'predefined'
   is_default?: boolean
+  is_public?: boolean
   context_window?: number
   max_tool_iterations?: number
   // Promoted fields

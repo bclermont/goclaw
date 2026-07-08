@@ -1,4 +1,4 @@
-import { Bot, Star, Trash2, RotateCcw, Sparkles } from "lucide-react";
+import { Bot, Star, Globe, Trash2, RotateCcw, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,14 @@ export function AgentListRow({ agent, ownerName, onClick, onResummon, onDelete }
         <div className="flex items-center gap-1.5">
           <span className="truncate text-sm font-semibold">{displayName}</span>
           {agent.is_default && <Star className="h-3 w-3 shrink-0 fill-amber-400 text-amber-400" />}
+          {agent.is_public && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Globe className="h-3 w-3 shrink-0 text-sky-500" />
+              </TooltipTrigger>
+              <TooltipContent>{t("identity.publicAgentHint")}</TooltipContent>
+            </Tooltip>
+          )}
         </div>
         {agent.display_name && !UUID_RE.test(agent.agent_key) && (
           <div className="truncate text-xs text-muted-foreground">{agent.agent_key}</div>

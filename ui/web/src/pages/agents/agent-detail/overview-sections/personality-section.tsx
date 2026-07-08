@@ -29,11 +29,14 @@ interface PersonalitySectionProps {
   onStatusChange: (v: string) => void;
   isDefault: boolean;
   onIsDefaultChange: (v: boolean) => void;
+  isPublic: boolean;
+  onIsPublicChange: (v: boolean) => void;
 }
 
 export function PersonalitySection({
   agentKey, emoji, onEmojiChange, displayName, onDisplayNameChange,
   frontmatter, onFrontmatterChange, status, onStatusChange, isDefault, onIsDefaultChange,
+  isPublic, onIsPublicChange,
 }: PersonalitySectionProps) {
   const { t } = useTranslation("agents");
   const [copied, setCopied] = useState(false);
@@ -132,6 +135,15 @@ export function PersonalitySection({
             <Label htmlFor="isDefault" className="text-sm font-normal">{t("identity.defaultAgent")}</Label>
           </div>
         </div>
+      </div>
+
+      {/* Public */}
+      <div className="space-y-1.5">
+        <div className="flex items-center gap-2">
+          <Switch id="isPublic" checked={isPublic} onCheckedChange={onIsPublicChange} />
+          <Label htmlFor="isPublic" className="text-sm font-normal">{t("identity.publicAgent")}</Label>
+        </div>
+        <p className="text-xs text-muted-foreground">{t("identity.publicAgentHint")}</p>
       </div>
 
       {/* Agent Key read-only */}

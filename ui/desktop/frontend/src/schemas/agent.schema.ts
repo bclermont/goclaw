@@ -12,6 +12,7 @@ export const agentFormSchema = z.object({
   model: z.string().min(1, 'Required'),
   description: z.string().min(1, 'Personality description is required'),
   isDefault: z.boolean(),
+  isPublic: z.boolean(),
 })
 
 export type AgentFormData = z.infer<typeof agentFormSchema>

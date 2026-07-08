@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ArrowLeft, Bot, Eye, Heart, Settings, Sparkles, Star, Trash2 } from "lucide-react";
+import { ArrowLeft, Bot, Eye, Globe, Heart, Settings, Sparkles, Star, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { AgentData } from "@/types/agent";
 import type { HeartbeatConfig } from "@/pages/agents/hooks/use-agent-heartbeat";
@@ -57,6 +57,14 @@ export function AgentHeader({ agent, heartbeat, onBack, onDelete, onAdvanced, on
             <h2 className="truncate text-base font-semibold">{title}</h2>
             {agent.is_default && (
               <Star className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-400" />
+            )}
+            {agent.is_public && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Globe className="h-3.5 w-3.5 shrink-0 text-sky-500" />
+                </TooltipTrigger>
+                <TooltipContent>{t("identity.publicAgentHint")}</TooltipContent>
+              </Tooltip>
             )}
             <Tooltip>
               <TooltipTrigger asChild>

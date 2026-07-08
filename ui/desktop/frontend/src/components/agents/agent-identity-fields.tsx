@@ -69,6 +69,15 @@ export function AgentIdentityFields({
         <Switch checked={watch('isDefault')} onCheckedChange={(v) => setValue('isDefault', v)} />
         <span className="text-xs text-text-secondary">{t('agents:identity.defaultAgent')}</span>
       </div>
+
+      {/* Public toggle */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-2">
+          <Switch checked={watch('isPublic')} onCheckedChange={(v) => setValue('isPublic', v)} />
+          <span className="text-xs text-text-secondary">{t('agents:identity.publicAgent')}</span>
+        </div>
+        <p className="text-xs text-text-muted">{t('agents:identity.publicAgentHint')}</p>
+      </div>
     </div>
   )
 }

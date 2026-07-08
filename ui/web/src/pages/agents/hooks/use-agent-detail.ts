@@ -39,6 +39,7 @@ export function useAgentDetail(agentId: string | undefined) {
           restrict_to_workspace: false,
           agent_type: "open" as const,
           is_default: false,
+          is_public: false,
           status: "active",
         };
       }

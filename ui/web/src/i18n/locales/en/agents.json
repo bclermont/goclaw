@@ -571,6 +571,8 @@
     "inactive": "Inactive",
     "summonFailed": "Summon Failed",
     "defaultAgent": "Default Agent",
+    "publicAgent": "Public Agent",
+    "publicAgentHint": "Anyone can access this agent without an explicit share, even anonymously — unlike Default Agent, any number of agents can be public at once.",
     "emoji": "Icon",
     "emojiHint": "Optional emoji icon"
   },

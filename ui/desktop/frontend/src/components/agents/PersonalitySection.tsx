@@ -9,17 +9,19 @@ interface PersonalitySectionProps {
   agentKey: string
   agentType: string
   isDefault: boolean
+  isPublic: boolean
   status: string
   onEmojiChange: (v: string) => void
   onDisplayNameChange: (v: string) => void
   onDescriptionChange: (v: string) => void
   onIsDefaultChange: (v: boolean) => void
+  onIsPublicChange: (v: boolean) => void
   onStatusChange: (v: string) => void
 }
 
 export function PersonalitySection({
-  emoji, displayName, description, agentKey, agentType, isDefault, status,
-  onEmojiChange, onDisplayNameChange, onDescriptionChange, onIsDefaultChange, onStatusChange,
+  emoji, displayName, description, agentKey, agentType, isDefault, isPublic, status,
+  onEmojiChange, onDisplayNameChange, onDescriptionChange, onIsDefaultChange, onIsPublicChange, onStatusChange,
 }: PersonalitySectionProps) {
   const { t } = useTranslation('agents')
   const STATUS_OPTIONS = [
@@ -85,6 +87,15 @@ export function PersonalitySection({
             <span className="text-xs text-text-secondary">{t('identity.defaultAgent')}</span>
           </div>
         </div>
+      </div>
+
+      {/* Public */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-2">
+          <Switch checked={isPublic} onCheckedChange={onIsPublicChange} />
+          <span className="text-xs text-text-secondary">{t('identity.publicAgent')}</span>
+        </div>
+        <p className="text-xs text-text-muted">{t('identity.publicAgentHint')}</p>
       </div>
     </div>
   )

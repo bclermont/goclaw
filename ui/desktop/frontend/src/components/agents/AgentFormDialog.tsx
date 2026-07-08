@@ -25,7 +25,7 @@ export function AgentFormDialog({ open, onOpenChange, agent, onSubmit }: AgentFo
   const { register, handleSubmit, watch, setValue, reset, formState: { errors, isSubmitting } } = useForm<AgentFormData>({
     resolver: zodResolver(agentFormSchema),
     mode: 'onChange',
-    defaultValues: { displayName: '', emoji: '🦊', agentKey: '', providerName: '', model: '', description: '', isDefault: false },
+    defaultValues: { displayName: '', emoji: '🦊', agentKey: '', providerName: '', model: '', description: '', isDefault: false, isPublic: false },
   })
 
   // UI-only state (not form data)
@@ -47,6 +47,7 @@ export function AgentFormDialog({ open, onOpenChange, agent, onSubmit }: AgentFo
       model: agent?.model ?? '',
       description: agent?.agent_description ?? (agent?.other_config?.description as string) ?? '',
       isDefault: agent?.is_default ?? false,
+      isPublic: agent?.is_public ?? false,
     })
     setSubmitError('')
     setSelectedPresetKey('')
@@ -103,6 +104,7 @@ export function AgentFormDialog({ open, onOpenChange, agent, onSubmit }: AgentFo
         model: data.model.trim(),
         agent_type: isEditing ? agent!.agent_type : 'predefined',
         is_default: data.isDefault || undefined,
+        is_public: data.isPublic || undefined,
         // Promoted fields at top level
         emoji: data.emoji?.trim() || null,
         agent_description: data.description?.trim() || null,

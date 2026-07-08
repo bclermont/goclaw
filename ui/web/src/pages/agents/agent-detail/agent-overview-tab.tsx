@@ -36,6 +36,7 @@ export function AgentOverviewTab({ agent, onUpdate, heartbeat, onManageCodexPool
   const [frontmatter, setFrontmatter] = useState(agent.frontmatter ?? "");
   const [status, setStatus] = useState(agent.status);
   const [isDefault, setIsDefault] = useState(agent.is_default);
+  const [isPublic, setIsPublic] = useState(agent.is_public);
 
   // Model & Budget
   const [provider, setProvider] = useState(agent.provider);
@@ -78,6 +79,7 @@ export function AgentOverviewTab({ agent, onUpdate, heartbeat, onManageCodexPool
         max_tool_iterations: maxToolIterations,
         status,
         is_default: isDefault,
+        is_public: isPublic,
         budget_monthly_cents: budgetCents,
         memory_config: mem,
         subagents_config: subEnabled ? sub : null,
@@ -127,6 +129,8 @@ export function AgentOverviewTab({ agent, onUpdate, heartbeat, onManageCodexPool
         onStatusChange={setStatus}
         isDefault={isDefault}
         onIsDefaultChange={setIsDefault}
+        isPublic={isPublic}
+        onIsPublicChange={setIsPublic}
       />
 
       <ModelBudgetSection

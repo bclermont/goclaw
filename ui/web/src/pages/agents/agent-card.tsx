@@ -1,4 +1,4 @@
-import { Bot, Star, RotateCcw, Trash2, Sparkles } from "lucide-react";
+import { Bot, Star, Globe, RotateCcw, Trash2, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,14 @@ export function AgentCard({ agent, onClick, onResummon, onDelete }: AgentCardPro
             <span className="truncate text-sm font-semibold">{displayName}</span>
             {agent.is_default && (
               <Star className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-400" />
+            )}
+            {agent.is_public && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Globe className="h-3.5 w-3.5 shrink-0 text-sky-500" />
+                </TooltipTrigger>
+                <TooltipContent>{t("identity.publicAgentHint")}</TooltipContent>
+              </Tooltip>
             )}
           </div>
           {showSubtitle && (

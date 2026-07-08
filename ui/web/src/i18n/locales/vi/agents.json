@@ -556,6 +556,8 @@
     "inactive": "Không hoạt động",
     "summonFailed": "Triệu hồi thất bại",
     "defaultAgent": "Agent mặc định",
+    "publicAgent": "Agent công khai",
+    "publicAgentHint": "Bất kỳ ai cũng có thể truy cập agent này mà không cần chia sẻ rõ ràng, kể cả ẩn danh — không giống Agent mặc định, có thể có nhiều agent công khai cùng lúc.",
     "emoji": "Biểu tượng",
     "emojiHint": "Emoji tùy chọn"
   },

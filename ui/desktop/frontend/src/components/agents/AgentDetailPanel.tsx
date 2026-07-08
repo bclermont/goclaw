@@ -151,9 +151,10 @@ export function AgentDetailPanel({ agent, onSave, onResummon, onClose }: AgentDe
             <PersonalitySection
               emoji={s.emoji} displayName={s.displayName} description={s.description}
               agentKey={agent.agent_key} agentType={agent.agent_type}
-              isDefault={s.isDefault} status={s.status}
+              isDefault={s.isDefault} isPublic={s.isPublic} status={s.status}
               onEmojiChange={s.setEmoji} onDisplayNameChange={s.setDisplayName}
               onDescriptionChange={s.setDescription} onIsDefaultChange={s.setIsDefault}
+              onIsPublicChange={s.setIsPublic}
               onStatusChange={s.setStatus}
             />
             <hr className="border-border" />

@@ -15,6 +15,7 @@ export function useAgentDetailState(
   const [description, setDescription] = useState(agent.agent_description ?? (agent.other_config?.description as string) ?? '')
   const [status, setStatus] = useState(agent.status ?? 'active')
   const [isDefault, setIsDefault] = useState(agent.is_default ?? false)
+  const [isPublic, setIsPublic] = useState(agent.is_public ?? false)
 
   // --- Model ---
   const [provider, setProvider] = useState(agent.provider)
@@ -113,6 +114,7 @@ export function useAgentDetailState(
         context_window: contextWindow,
         max_tool_iterations: maxToolIterations,
         is_default: isDefault,
+        is_public: isPublic,
         status,
         other_config: Object.keys(otherConfig).length > 0 ? otherConfig : {},
         context_pruning: pruningEnabled ? pruningConfig : null,
@@ -130,7 +132,7 @@ export function useAgentDetailState(
   }, [
     agent, emoji, displayName, description, selfEvolve, skillLearning, skillNudgeInterval,
     promptMode, reasoningMode, thinkingLevel, pinnedSkills,
-    provider, model, contextWindow, maxToolIterations, isDefault, status,
+    provider, model, contextWindow, maxToolIterations, isDefault, isPublic, status,
     pruningEnabled, pruningConfig, compactionConfig,
     subEnabled, subConfig, toolsEnabled, toolsConfig, sandboxEnabled, sandboxConfig,
     onSave, onClose,
@@ -139,7 +141,7 @@ export function useAgentDetailState(
   return {
     // Identity
     emoji, setEmoji, displayName, setDisplayName, description, setDescription,
-    status, setStatus, isDefault, setIsDefault,
+    status, setStatus, isDefault, setIsDefault, isPublic, setIsPublic,
     // Model
     provider, setProvider, model, setModel,
     contextWindow, setContextWindow, maxToolIterations, setMaxToolIterations,

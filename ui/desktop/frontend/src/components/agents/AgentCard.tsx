@@ -40,7 +40,16 @@ export function AgentCard({ agent, onEdit, onDelete, onResummon }: AgentCardProp
             <span className="truncate text-sm font-semibold text-text-primary">{displayName}</span>
             {agent.is_default && (
               <svg className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-400" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <title>Default agent</title>
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+            )}
+            {agent.is_public && (
+              <svg className="h-3.5 w-3.5 shrink-0 text-sky-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <title>Public agent — accessible without an explicit share</title>
+                <circle cx="12" cy="12" r="10" />
+                <path d="M2 12h20" />
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" />
               </svg>
             )}
           </div>

@@ -556,6 +556,8 @@
     "inactive": "非活跃",
     "summonFailed": "召唤失败",
     "defaultAgent": "默认Agent",
+    "publicAgent": "公开Agent",
+    "publicAgentHint": "任何人（包括匿名用户）都可以在没有明确共享的情况下访问此Agent——与默认Agent不同，可以同时公开任意数量的Agent。",
     "emoji": "图标",
     "emojiHint": "可选的表情图标"
   },

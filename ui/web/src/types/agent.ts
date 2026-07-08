@@ -184,6 +184,7 @@ export interface AgentData {
   restrict_to_workspace: boolean;
   agent_type: "open" | "predefined";
   is_default: boolean;
+  is_public: boolean;
   status: string;
   created_at?: string;
   updated_at?: string;
