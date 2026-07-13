@@ -129,6 +129,54 @@ export function TraceDetailDialog({ traceId, onClose, getTrace, onNavigateTrace,
                   </div>
                 </div>
               )}
+
+              {trace.tool_calls && trace.tool_calls.length > 0 && (
+                <div>
+                  <h4 className="mb-2 text-sm font-medium">Tool Calls ({trace.tool_calls.length})</h4>
+                  <div className="space-y-2">
+                    {trace.tool_calls.map((call, idx) => (
+                      <div key={idx} className="rounded-md border border-amber-400/30 bg-amber-500/10 p-3">
+                        <div className="mb-2 flex items-center justify-between">
+                          <span className="font-mono text-xs font-medium text-amber-200">{call.tool_name}</span>
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                            call.status === 'success' ? 'bg-green-500/30 text-green-200' :
+                            call.status === 'error' ? 'bg-red-500/30 text-red-200' :
+                            'bg-gray-500/30 text-gray-200'
+                          }`}>{call.status}</span>
+                        </div>
+                        {call.input && <div className="mb-1 text-xs"><span className="text-muted-foreground">Input:</span> <span className="break-all text-amber-100">{call.input}</span></div>}
+                        {call.output && <div className="mb-1 text-xs"><span className="text-muted-foreground">Output:</span> <span className="break-all text-amber-100">{call.output}</span></div>}
+                        {call.error && <div className="text-xs text-red-300"><span className="text-muted-foreground">Error:</span> {call.error}</div>}
+                        {call.duration_ms !== undefined && <div className="text-xs text-muted-foreground">Duration: {call.duration_ms}ms</div>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {trace.hook_executions && trace.hook_executions.length > 0 && (
+                <div>
+                  <h4 className="mb-2 text-sm font-medium">Hook Executions ({trace.hook_executions.length})</h4>
+                  <div className="space-y-2">
+                    {trace.hook_executions.map((exec, idx) => (
+                      <div key={idx} className="rounded-md border border-blue-400/30 bg-blue-500/10 p-3">
+                        <div className="mb-2 flex items-center justify-between">
+                          <span className="font-mono text-xs font-medium text-blue-200">{exec.event}</span>
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                            exec.decision === 'allow' ? 'bg-green-500/30 text-green-200' :
+                            exec.decision === 'block' ? 'bg-red-500/30 text-red-200' :
+                            exec.decision === 'timeout' ? 'bg-yellow-500/30 text-yellow-200' :
+                            'bg-gray-500/30 text-gray-200'
+                          }`}>{exec.decision}</span>
+                        </div>
+                        <div className="text-xs text-muted-foreground">Hook ID: <span className="font-mono text-blue-200">{exec.hook_id.slice(0, 12)}...</span></div>
+                        {exec.error && <div className="mt-1 text-xs text-red-300">{exec.error}</div>}
+                        {exec.duration_ms !== undefined && <div className="text-xs text-muted-foreground">Duration: {exec.duration_ms}ms</div>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

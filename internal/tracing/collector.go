@@ -207,6 +207,11 @@ func (c *Collector) CreateTrace(ctx context.Context, trace *store.TraceData) err
 	return c.store.CreateTrace(ctx, trace)
 }
 
+// GetTrace retrieves a trace record by ID.
+func (c *Collector) GetTrace(ctx context.Context, traceID uuid.UUID) (*store.TraceData, error) {
+	return c.store.GetTrace(ctx, traceID)
+}
+
 // UpdateTrace synchronously updates a trace record.
 func (c *Collector) UpdateTrace(ctx context.Context, traceID uuid.UUID, updates map[string]any) error {
 	return c.store.UpdateTrace(ctx, traceID, updates)

@@ -61,9 +61,11 @@ type TraceData struct {
 	Status            string          `json:"status" db:"status"`
 	Error             string          `json:"error,omitempty" db:"error"`
 	Metadata          json.RawMessage `json:"metadata,omitempty" db:"metadata"`
-	Tags              []string        `json:"tags,omitempty" db:"tags"`
-	TeamID            *uuid.UUID      `json:"team_id,omitempty" db:"team_id"`
-	CreatedAt         time.Time       `json:"created_at" db:"created_at"`
+	Tags              []string             `json:"tags,omitempty" db:"tags"`
+	TeamID            *uuid.UUID           `json:"team_id,omitempty" db:"team_id"`
+	CreatedAt         time.Time            `json:"created_at" db:"created_at"`
+	ToolCalls         []ToolCallData       `json:"tool_calls,omitempty" db:"tool_calls"`
+	HookExecutions    []HookExecutionData  `json:"hook_executions,omitempty" db:"hook_executions"`
 }
 
 // SpanData represents a single operation within a trace.
@@ -146,6 +148,26 @@ type TraceCostBackfillStats struct {
 
 type TraceUsageAggregateStats struct {
 	TraceRowsUpdated int64
+}
+
+// ToolCallData holds structured data about a tool call within a trace.
+type ToolCallData struct {
+	ToolName   string `json:"tool_name"`
+	ToolCallID string `json:"tool_call_id"`
+	Input      string `json:"input"`
+	Output     string `json:"output"`
+	DurationMS int    `json:"duration_ms,omitempty"`
+	Status     string `json:"status"`
+	Error      string `json:"error,omitempty"`
+}
+
+// HookExecutionData holds structured data about a hook execution within a trace.
+type HookExecutionData struct {
+	HookID     string `json:"hook_id"`
+	Event      string `json:"event"`
+	Decision   string `json:"decision"`
+	DurationMS int    `json:"duration_ms,omitempty"`
+	Error      string `json:"error,omitempty"`
 }
 
 // CodexPoolSpan holds the fields from a single LLM span for Codex pool activity analysis.

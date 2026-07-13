@@ -579,6 +579,8 @@ CREATE TABLE IF NOT EXISTS traces (
     parent_trace_id     TEXT,
     team_id             TEXT REFERENCES agent_teams(id) ON DELETE SET NULL,
     tenant_id           TEXT NOT NULL REFERENCES tenants(id),
+    tool_calls          TEXT DEFAULT '[]',
+    hook_executions     TEXT DEFAULT '[]',
     created_at          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 

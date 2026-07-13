@@ -1,3 +1,21 @@
+export interface ToolCallData {
+  tool_name: string;
+  tool_call_id: string;
+  input: string;
+  output: string;
+  duration_ms?: number;
+  status: string;
+  error?: string;
+}
+
+export interface HookExecutionData {
+  hook_id: string;
+  event: string;
+  decision: string;
+  duration_ms?: number;
+  error?: string;
+}
+
 export interface TraceData {
   id: string;
   parent_trace_id?: string;
@@ -22,6 +40,8 @@ export interface TraceData {
   error?: string;
   tags?: string[];
   metadata?: { total_cache_read_tokens?: number; total_cache_creation_tokens?: number };
+  tool_calls?: ToolCallData[];
+  hook_executions?: HookExecutionData[];
   created_at: string;
 }
 
