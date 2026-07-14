@@ -24,11 +24,11 @@ const (
 	// recovery is a safety net for crashed/orphaned traces. Lowering this further
 	// requires a `last_span_at` column so we don't sweep legitimate long-running
 	// agents (see plan's Phase 3 unresolved question).
-	staleThreshold = 10 * time.Minute
-	staleRecoveryPeriod  = 30 * time.Second // new: run periodically instead of once on startup
-	retryQueueCap        = 1000
-	retryWorkerPeriod    = 5 * time.Second
-	retryMaxTries        = 10
+	staleThreshold      = 10 * time.Minute
+	staleRecoveryPeriod = 30 * time.Second // new: run periodically instead of once on startup
+	retryQueueCap       = 1000
+	retryWorkerPeriod   = 5 * time.Second
+	retryMaxTries       = 10
 )
 
 // TraceStatusPayload is the payload for EventTraceStatusChanged WS events.

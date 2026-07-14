@@ -39,33 +39,33 @@ const (
 
 // TraceData represents a top-level trace (one per user request).
 type TraceData struct {
-	ID                uuid.UUID       `json:"id" db:"id"`
-	ParentTraceID     *uuid.UUID      `json:"parent_trace_id,omitempty" db:"parent_trace_id"` // linked parent trace (delegation)
-	AgentID           *uuid.UUID      `json:"agent_id,omitempty" db:"agent_id"`
-	UserID            string          `json:"user_id,omitempty" db:"user_id"`
-	SessionKey        string          `json:"session_key,omitempty" db:"session_key"`
-	RunID             string          `json:"run_id,omitempty" db:"run_id"`
-	StartTime         time.Time       `json:"start_time" db:"start_time"`
-	EndTime           *time.Time      `json:"end_time,omitempty" db:"end_time"`
-	DurationMS        int             `json:"duration_ms,omitempty" db:"duration_ms"`
-	Name              string          `json:"name,omitempty" db:"name"`
-	Channel           string          `json:"channel,omitempty" db:"channel"`
-	InputPreview      string          `json:"input_preview,omitempty" db:"input_preview"`
-	OutputPreview     string          `json:"output_preview,omitempty" db:"output_preview"`
-	TotalInputTokens  int             `json:"total_input_tokens" db:"total_input_tokens"`
-	TotalOutputTokens int             `json:"total_output_tokens" db:"total_output_tokens"`
-	TotalCost         float64         `json:"total_cost" db:"total_cost"`
-	SpanCount         int             `json:"span_count" db:"span_count"`
-	LLMCallCount      int             `json:"llm_call_count" db:"llm_call_count"`
-	ToolCallCount     int             `json:"tool_call_count" db:"tool_call_count"`
-	Status            string          `json:"status" db:"status"`
-	Error             string          `json:"error,omitempty" db:"error"`
-	Metadata          json.RawMessage `json:"metadata,omitempty" db:"metadata"`
-	Tags              []string             `json:"tags,omitempty" db:"tags"`
-	TeamID            *uuid.UUID           `json:"team_id,omitempty" db:"team_id"`
-	CreatedAt         time.Time            `json:"created_at" db:"created_at"`
-	ToolCalls         []ToolCallData       `json:"tool_calls,omitempty" db:"tool_calls"`
-	HookExecutions    []HookExecutionData  `json:"hook_executions,omitempty" db:"hook_executions"`
+	ID                uuid.UUID           `json:"id" db:"id"`
+	ParentTraceID     *uuid.UUID          `json:"parent_trace_id,omitempty" db:"parent_trace_id"` // linked parent trace (delegation)
+	AgentID           *uuid.UUID          `json:"agent_id,omitempty" db:"agent_id"`
+	UserID            string              `json:"user_id,omitempty" db:"user_id"`
+	SessionKey        string              `json:"session_key,omitempty" db:"session_key"`
+	RunID             string              `json:"run_id,omitempty" db:"run_id"`
+	StartTime         time.Time           `json:"start_time" db:"start_time"`
+	EndTime           *time.Time          `json:"end_time,omitempty" db:"end_time"`
+	DurationMS        int                 `json:"duration_ms,omitempty" db:"duration_ms"`
+	Name              string              `json:"name,omitempty" db:"name"`
+	Channel           string              `json:"channel,omitempty" db:"channel"`
+	InputPreview      string              `json:"input_preview,omitempty" db:"input_preview"`
+	OutputPreview     string              `json:"output_preview,omitempty" db:"output_preview"`
+	TotalInputTokens  int                 `json:"total_input_tokens" db:"total_input_tokens"`
+	TotalOutputTokens int                 `json:"total_output_tokens" db:"total_output_tokens"`
+	TotalCost         float64             `json:"total_cost" db:"total_cost"`
+	SpanCount         int                 `json:"span_count" db:"span_count"`
+	LLMCallCount      int                 `json:"llm_call_count" db:"llm_call_count"`
+	ToolCallCount     int                 `json:"tool_call_count" db:"tool_call_count"`
+	Status            string              `json:"status" db:"status"`
+	Error             string              `json:"error,omitempty" db:"error"`
+	Metadata          json.RawMessage     `json:"metadata,omitempty" db:"metadata"`
+	Tags              []string            `json:"tags,omitempty" db:"tags"`
+	TeamID            *uuid.UUID          `json:"team_id,omitempty" db:"team_id"`
+	CreatedAt         time.Time           `json:"created_at" db:"created_at"`
+	ToolCalls         []ToolCallData      `json:"tool_calls,omitempty" db:"tool_calls"`
+	HookExecutions    []HookExecutionData `json:"hook_executions,omitempty" db:"hook_executions"`
 }
 
 // SpanData represents a single operation within a trace.
