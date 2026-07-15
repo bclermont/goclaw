@@ -180,6 +180,7 @@ export interface AgentData {
   model: string;
   context_window: number;
   max_tool_iterations: number;
+  tool_optimization_level: number;
   workspace: string;
   restrict_to_workspace: boolean;
   agent_type: "open" | "predefined";

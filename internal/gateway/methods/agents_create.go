@@ -24,18 +24,19 @@ import (
 func (m *AgentsMethods) handleCreate(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
 	locale := store.LocaleFromContext(ctx)
 	var params struct {
-		Name              string   `json:"name"`
-		Workspace         string   `json:"workspace"`
-		Emoji             string   `json:"emoji"`
-		Avatar            string   `json:"avatar"`
-		Provider          string   `json:"provider"`
-		Model             string   `json:"model"`
-		AgentType         string   `json:"agent_type"`          // "open" (default) or "predefined"
-		OwnerIDs          []string `json:"owner_ids,omitempty"` // first entry used as DB owner_id; falls back to "system"
-		TenantID          string   `json:"tenant_id"`           // required for cross-tenant callers; ignored otherwise
-		ContextWindow     int      `json:"context_window"`
-		MaxToolIterations int      `json:"max_tool_iterations"`
-		BudgetCents       *int     `json:"budget_monthly_cents"`
+		Name                  string   `json:"name"`
+		Workspace             string   `json:"workspace"`
+		Emoji                 string   `json:"emoji"`
+		Avatar                string   `json:"avatar"`
+		Provider              string   `json:"provider"`
+		Model                 string   `json:"model"`
+		AgentType             string   `json:"agent_type"`          // "open" (default) or "predefined"
+		OwnerIDs              []string `json:"owner_ids,omitempty"` // first entry used as DB owner_id; falls back to "system"
+		TenantID              string   `json:"tenant_id"`           // required for cross-tenant callers; ignored otherwise
+		ContextWindow         int      `json:"context_window"`
+		MaxToolIterations     int      `json:"max_tool_iterations"`
+		ToolOptimizationLevel int      `json:"tool_optimization_level"`
+		BudgetCents           *int     `json:"budget_monthly_cents"`
 		// Per-agent config overrides
 		ToolsConfig      json.RawMessage `json:"tools_config,omitempty"`
 		SubagentsConfig  json.RawMessage `json:"subagents_config,omitempty"`
@@ -128,37 +129,38 @@ func (m *AgentsMethods) handleCreate(ctx context.Context, client *gateway.Client
 		}
 
 		agentData := &store.AgentData{
-			AgentKey:         agentID,
-			DisplayName:      params.Name,
-			OwnerID:          ownerID,
-			TenantID:         tenantID,
-			AgentType:        agentType,
-			Provider:         provider,
-			Model:            model,
-			Workspace:        ws,
-			ContextWindow:     params.ContextWindow,
-			MaxToolIterations: params.MaxToolIterations,
-			BudgetMonthlyCents: params.BudgetCents,
-			Status:           store.AgentStatusActive,
-			ToolsConfig:      params.ToolsConfig,
-			SubagentsConfig:  params.SubagentsConfig,
-			SandboxConfig:    params.SandboxConfig,
-			MemoryConfig:     params.MemoryConfig,
-			CompactionConfig: params.CompactionConfig,
-			ContextPruning:   params.ContextPruning,
-			OtherConfig:         params.OtherConfig,
-			Emoji:               params.Emoji,
-			AgentDescription:    params.AgentDescription,
-			ThinkingLevel:       params.ThinkingLevel,
-			MaxTokens:           params.MaxTokens,
-			SelfEvolve:          params.SelfEvolve,
-			SkillEvolve:         params.SkillEvolve,
-			SkillNudgeInterval:  params.SkillNudgeInterval,
-			ReasoningConfig:     params.ReasoningConfig,
-			WorkspaceSharing:    params.WorkspaceSharing,
-			ChatGPTOAuthRouting: params.ChatGPTOAuthRouting,
-			ShellDenyGroups:     params.ShellDenyGroups,
-			KGDedupConfig:       params.KGDedupConfig,
+			AgentKey:              agentID,
+			DisplayName:           params.Name,
+			OwnerID:               ownerID,
+			TenantID:              tenantID,
+			AgentType:             agentType,
+			Provider:              provider,
+			Model:                 model,
+			Workspace:             ws,
+			ContextWindow:         params.ContextWindow,
+			MaxToolIterations:     params.MaxToolIterations,
+			ToolOptimizationLevel: params.ToolOptimizationLevel,
+			BudgetMonthlyCents:    params.BudgetCents,
+			Status:                store.AgentStatusActive,
+			ToolsConfig:           params.ToolsConfig,
+			SubagentsConfig:       params.SubagentsConfig,
+			SandboxConfig:         params.SandboxConfig,
+			MemoryConfig:          params.MemoryConfig,
+			CompactionConfig:      params.CompactionConfig,
+			ContextPruning:        params.ContextPruning,
+			OtherConfig:           params.OtherConfig,
+			Emoji:                 params.Emoji,
+			AgentDescription:      params.AgentDescription,
+			ThinkingLevel:         params.ThinkingLevel,
+			MaxTokens:             params.MaxTokens,
+			SelfEvolve:            params.SelfEvolve,
+			SkillEvolve:           params.SkillEvolve,
+			SkillNudgeInterval:    params.SkillNudgeInterval,
+			ReasoningConfig:       params.ReasoningConfig,
+			WorkspaceSharing:      params.WorkspaceSharing,
+			ChatGPTOAuthRouting:   params.ChatGPTOAuthRouting,
+			ShellDenyGroups:       params.ShellDenyGroups,
+			KGDedupConfig:         params.KGDedupConfig,
 		}
 		if err := m.agentStore.Create(ctx, agentData); err != nil {
 			client.SendResponse(protocol.NewErrorResponse(req.ID, protocol.ErrInternal, i18n.T(locale, i18n.MsgFailedToCreate, "agent", fmt.Sprintf("%v", err))))

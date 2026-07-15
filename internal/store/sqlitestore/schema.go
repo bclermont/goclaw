@@ -16,7 +16,7 @@ var schemaSQL string
 
 // SchemaVersion is the current SQLite schema version.
 // Bump this when adding new migration steps below.
-const SchemaVersion = 58
+const SchemaVersion = 59
 
 // migrations maps version → SQL to apply when upgrading FROM that version.
 // schema.sql always represents the LATEST full schema (for fresh DBs).
@@ -30,6 +30,8 @@ const SchemaVersion = 58
 //
 // Then bump SchemaVersion to 2.
 var migrations = map[int]string{
+	// Version 58 → 59: per-agent tool optimization level (0..5). See internal/tooloptimize.
+	58: `ALTER TABLE agents ADD COLUMN tool_optimization_level INT NOT NULL DEFAULT 0;`,
 	// Version 57 → 58: restore custom skills previously converted by the bundled skill seeder.
 	57: `UPDATE skills
 SET is_system = 0,
@@ -1609,6 +1611,8 @@ func idempotentColumnMigration(version int) (string, string, bool) {
 		return "webhook_calls", "last_heartbeat_at", true
 	case 55:
 		return "mcp_servers", "require_user_credentials", true
+	case 58:
+		return "agents", "tool_optimization_level", true
 	default:
 		return "", "", false
 	}

@@ -38,7 +38,8 @@ const agentSelectCols = `id, agent_key, display_name, frontmatter, owner_id, pro
 	 self_evolve, skill_evolve, skill_nudge_interval,
 	 reasoning_config, workspace_sharing, chatgpt_oauth_routing,
 	 model_fallback, shell_deny_groups, kg_dedup_config,
-	 agent_type, is_default, status, budget_monthly_cents, created_at, updated_at, tenant_id`
+	 agent_type, is_default, status, budget_monthly_cents, created_at, updated_at, tenant_id,
+	 tool_optimization_level`
 
 func (s *SQLiteAgentStore) Create(ctx context.Context, agent *store.AgentData) error {
 	if agent.ID == uuid.Nil {
@@ -60,8 +61,9 @@ func (s *SQLiteAgentStore) Create(ctx context.Context, agent *store.AgentData) e
 		 self_evolve, skill_evolve, skill_nudge_interval,
 		 reasoning_config, workspace_sharing, chatgpt_oauth_routing,
 		 model_fallback, shell_deny_groups, kg_dedup_config,
-		 agent_type, is_default, status, budget_monthly_cents, created_at, updated_at, tenant_id)
-		 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+		 agent_type, is_default, status, budget_monthly_cents, created_at, updated_at, tenant_id,
+		 tool_optimization_level)
+		 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
 		agent.ID, agent.AgentKey,
 		agent.DisplayName,
 		sql.NullString{String: agent.Frontmatter, Valid: agent.Frontmatter != ""},
@@ -75,6 +77,7 @@ func (s *SQLiteAgentStore) Create(ctx context.Context, agent *store.AgentData) e
 		jsonOrEmpty(agent.ModelFallback), jsonOrEmpty(agent.ShellDenyGroups), jsonOrEmpty(agent.KGDedupConfig),
 		agent.AgentType, agent.IsDefault, agent.Status, agent.BudgetMonthlyCents,
 		now, now, tenantID,
+		agent.ToolOptimizationLevel,
 	)
 	return err
 }
@@ -288,6 +291,7 @@ func scanAgentRow(row agentRowScanner) (*store.AgentData, error) {
 		&reasoningCfg, &wsCfg, &oauthCfg, &fallbackCfg, &shellCfg, &kgCfg,
 		&d.AgentType, &d.IsDefault, &d.Status, &d.BudgetMonthlyCents,
 		createdAt, updatedAt, &d.TenantID,
+		&d.ToolOptimizationLevel,
 	)
 	if err != nil {
 		return nil, err

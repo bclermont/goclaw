@@ -42,6 +42,7 @@ export function AgentOverviewTab({ agent, onUpdate, heartbeat, onManageCodexPool
   const [model, setModel] = useState(agent.model);
   const [contextWindow, setContextWindow] = useState(agent.context_window || 200000);
   const [maxToolIterations, setMaxToolIterations] = useState(agent.max_tool_iterations || 20);
+  const [toolOptimizationLevel, setToolOptimizationLevel] = useState(agent.tool_optimization_level || 0);
   const [budgetDollars, setBudgetDollars] = useState(
     agent.budget_monthly_cents ? String(agent.budget_monthly_cents / 100) : "",
   );
@@ -76,6 +77,7 @@ export function AgentOverviewTab({ agent, onUpdate, heartbeat, onManageCodexPool
         model,
         context_window: contextWindow,
         max_tool_iterations: maxToolIterations,
+        tool_optimization_level: toolOptimizationLevel,
         status,
         is_default: isDefault,
         budget_monthly_cents: budgetCents,
@@ -138,6 +140,8 @@ export function AgentOverviewTab({ agent, onUpdate, heartbeat, onManageCodexPool
         onContextWindowChange={setContextWindow}
         maxToolIterations={maxToolIterations}
         onMaxToolIterationsChange={setMaxToolIterations}
+        toolOptimizationLevel={toolOptimizationLevel}
+        onToolOptimizationLevelChange={setToolOptimizationLevel}
         savedProvider={agent.provider}
         savedModel={agent.model}
         budgetDollars={budgetDollars}

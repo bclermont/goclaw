@@ -23,18 +23,19 @@ import (
 func (m *AgentsMethods) handleUpdate(ctx context.Context, client *gateway.Client, req *protocol.RequestFrame) {
 	locale := store.LocaleFromContext(ctx)
 	var params struct {
-		AgentID           string `json:"agentId"`
-		Name              string `json:"name"`
-		Workspace         string `json:"workspace"`
-		Provider          string `json:"provider"`
-		Model             string `json:"model"`
-		Avatar            string `json:"avatar"`
-		Status            string `json:"status"`
-		Frontmatter       string `json:"frontmatter"`
-		ContextWindow     *int   `json:"context_window"`
-		MaxToolIterations *int   `json:"max_tool_iterations"`
-		IsDefault         *bool  `json:"is_default"`
-		BudgetCents       *int   `json:"budget_monthly_cents"`
+		AgentID               string `json:"agentId"`
+		Name                  string `json:"name"`
+		Workspace             string `json:"workspace"`
+		Provider              string `json:"provider"`
+		Model                 string `json:"model"`
+		Avatar                string `json:"avatar"`
+		Status                string `json:"status"`
+		Frontmatter           string `json:"frontmatter"`
+		ContextWindow         *int   `json:"context_window"`
+		MaxToolIterations     *int   `json:"max_tool_iterations"`
+		ToolOptimizationLevel *int   `json:"tool_optimization_level"`
+		IsDefault             *bool  `json:"is_default"`
+		BudgetCents           *int   `json:"budget_monthly_cents"`
 		// Per-agent config overrides
 		ToolsConfig      json.RawMessage `json:"tools_config,omitempty"`
 		SubagentsConfig  json.RawMessage `json:"subagents_config,omitempty"`
@@ -104,6 +105,9 @@ func (m *AgentsMethods) handleUpdate(ctx context.Context, client *gateway.Client
 		}
 		if params.MaxToolIterations != nil {
 			updates["max_tool_iterations"] = *params.MaxToolIterations
+		}
+		if params.ToolOptimizationLevel != nil {
+			updates["tool_optimization_level"] = *params.ToolOptimizationLevel
 		}
 		if params.IsDefault != nil {
 			updates["is_default"] = *params.IsDefault

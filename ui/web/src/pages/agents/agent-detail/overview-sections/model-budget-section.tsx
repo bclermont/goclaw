@@ -14,6 +14,8 @@ interface ModelBudgetSectionProps {
   onContextWindowChange: (v: number) => void;
   maxToolIterations: number;
   onMaxToolIterationsChange: (v: number) => void;
+  toolOptimizationLevel: number;
+  onToolOptimizationLevelChange: (v: number) => void;
   savedProvider: string;
   savedModel: string;
   budgetDollars: string;
@@ -25,6 +27,7 @@ export function ModelBudgetSection({
   provider, onProviderChange, model, onModelChange,
   contextWindow, onContextWindowChange,
   maxToolIterations, onMaxToolIterationsChange,
+  toolOptimizationLevel, onToolOptimizationLevelChange,
   savedProvider, savedModel,
   budgetDollars, onBudgetDollarsChange,
   onSaveBlockedChange,
@@ -76,6 +79,31 @@ export function ModelBudgetSection({
           />
           <p className="text-xs text-muted-foreground">{t("llmConfig.maxToolIterationsHint")}</p>
         </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="toolOptimizationLevel" className="text-xs">
+          {t("llmConfig.toolOptimizationLevel", "Tool optimization level")}
+        </Label>
+        <select
+          id="toolOptimizationLevel"
+          value={toolOptimizationLevel}
+          onChange={(e) => onToolOptimizationLevelChange(Number(e.target.value) || 0)}
+          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base md:text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        >
+          <option value={0}>0 — {t("llmConfig.toolOptLevel0", "Off (all tools inline)")}</option>
+          <option value={1}>1 — {t("llmConfig.toolOptLevel1", "Minify (slim schemas)")}</option>
+          <option value={2}>2 — {t("llmConfig.toolOptLevel2", "Scope (domain tools only)")}</option>
+          <option value={3}>3 — {t("llmConfig.toolOptLevel3", "Defer tail (search bridge)")}</option>
+          <option value={4}>4 — {t("llmConfig.toolOptLevel4", "LLM-curate (offline)")}</option>
+          <option value={5}>5 — {t("llmConfig.toolOptLevel5", "Aggressive (core inline only)")}</option>
+        </select>
+        <p className="text-xs text-muted-foreground">
+          {t(
+            "llmConfig.toolOptimizationLevelHint",
+            "Shapes the tool list before it reaches the model. Small models are most reliable at 2–3; avoid 5 on small models. Preview the effect in the System Prompt Preview → Optimized tab.",
+          )}
+        </p>
       </div>
 
       <div className="space-y-1.5">

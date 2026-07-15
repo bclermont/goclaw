@@ -45,6 +45,7 @@ export function useAgents() {
         model: a.model,
         context_window: 0,
         max_tool_iterations: 0,
+        tool_optimization_level: 0,
         workspace: "",
         restrict_to_workspace: false,
         agent_type: (a as unknown as { agentType?: string }).agentType === "predefined" ? "predefined" as const : "open" as const,

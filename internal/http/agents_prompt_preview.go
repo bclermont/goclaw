@@ -65,6 +65,9 @@ type promptPreviewResponse struct {
 	TokenCount int                         `json:"token_count"`
 	Sections   []promptPreviewSection      `json:"sections"`
 	Tools      []providers.ToolDefinition  `json:"tools,omitempty"`
+	// Optimization is the "Optimized" tab: the tool list after the agent's
+	// tool_optimization_level is applied. Nil when the level is off (0).
+	Optimization *promptOptimizationView `json:"optimization,omitempty"`
 }
 
 // handleSystemPromptPreview renders the actual system prompt for an agent in a given mode.
@@ -142,6 +145,7 @@ func (h *AgentsHandler) handleSystemPromptPreview(w http.ResponseWriter, r *http
 		TokenCount: tokens,
 		Sections:   sections,
 		Tools:      result.ToolDefs,
+		Optimization: buildOptimizationView(ag, result.ToolDefs, counter),
 	})
 }
 

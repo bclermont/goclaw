@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS agents (
     model                 VARCHAR(200) NOT NULL,
     context_window        INT NOT NULL DEFAULT 200000,
     max_tool_iterations   INT NOT NULL DEFAULT 20,
+    tool_optimization_level INT NOT NULL DEFAULT 0,
     workspace             TEXT NOT NULL DEFAULT '.',
     restrict_to_workspace BOOLEAN NOT NULL DEFAULT 1,
     tools_config          TEXT NOT NULL DEFAULT '{}',

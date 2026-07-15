@@ -52,6 +52,9 @@ type AgentData struct {
 	Model               string    `json:"model" db:"model"`
 	ContextWindow       int       `json:"context_window" db:"context_window"`
 	MaxToolIterations   int       `json:"max_tool_iterations" db:"max_tool_iterations"`
+	// ToolOptimizationLevel selects how the tool catalog is shaped before it
+	// reaches the model: 0 off … 5 aggressive. See internal/tooloptimize.
+	ToolOptimizationLevel int `json:"tool_optimization_level" db:"tool_optimization_level"`
 	Workspace           string    `json:"workspace" db:"workspace"`
 	RestrictToWorkspace bool      `json:"restrict_to_workspace" db:"restrict_to_workspace"`
 	AgentType           string    `json:"agent_type" db:"agent_type"` // "open" or "predefined"

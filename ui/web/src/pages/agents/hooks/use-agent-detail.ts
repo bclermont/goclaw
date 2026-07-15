@@ -35,6 +35,7 @@ export function useAgentDetail(agentId: string | undefined) {
           model: "",
           context_window: 0,
           max_tool_iterations: 0,
+          tool_optimization_level: 0,
           workspace: "",
           restrict_to_workspace: false,
           agent_type: "open" as const,
