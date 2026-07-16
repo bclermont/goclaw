@@ -1,6 +1,7 @@
 package tooloptimize
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -15,7 +16,7 @@ import (
 // cached (see CachingOptimizer) and reused across turns — never on the model's
 // per-turn path.
 type Optimizer interface {
-	Optimize(toolset []ToolDesc, profile Profile, level Level, cfg Config) (*Plan, error)
+	Optimize(ctx context.Context, toolset []ToolDesc, profile Profile, level Level, cfg Config) (*Plan, error)
 }
 
 // HeuristicOptimizer is the deterministic, no-LLM strategy. It backs levels 0–3
@@ -24,7 +25,7 @@ type Optimizer interface {
 type HeuristicOptimizer struct{}
 
 // Optimize implements Optimizer.
-func (HeuristicOptimizer) Optimize(toolset []ToolDesc, profile Profile, level Level, cfg Config) (*Plan, error) {
+func (HeuristicOptimizer) Optimize(_ context.Context, toolset []ToolDesc, profile Profile, level Level, cfg Config) (*Plan, error) {
 	return Optimize(toolset, profile, level, cfg), nil
 }
 
@@ -53,6 +54,7 @@ func CatalogHash(toolset []ToolDesc, profile Profile, level Level, cfg Config) s
 	write(strconv.FormatFloat(cfg.ThresholdPct, 'f', 4, 64))
 	write(strconv.Itoa(cfg.AbsoluteThreshold))
 	write(strconv.Itoa(cfg.BridgeToolCost))
+	write(cfg.OptimizerVariant)
 	for _, kw := range keywords {
 		write(kw)
 	}
@@ -87,7 +89,7 @@ func NewCachingOptimizer(inner Optimizer) *CachingOptimizer {
 }
 
 // Optimize returns the cached Plan for the catalog or computes and stores one.
-func (c *CachingOptimizer) Optimize(toolset []ToolDesc, profile Profile, level Level, cfg Config) (*Plan, error) {
+func (c *CachingOptimizer) Optimize(ctx context.Context, toolset []ToolDesc, profile Profile, level Level, cfg Config) (*Plan, error) {
 	key := CatalogHash(toolset, profile, level, cfg)
 
 	c.mu.RLock()
@@ -97,7 +99,7 @@ func (c *CachingOptimizer) Optimize(toolset []ToolDesc, profile Profile, level L
 	}
 	c.mu.RUnlock()
 
-	plan, err := c.inner.Optimize(toolset, profile, level, cfg)
+	plan, err := c.inner.Optimize(ctx, toolset, profile, level, cfg)
 	if err != nil {
 		return nil, err
 	}

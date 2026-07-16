@@ -1,6 +1,7 @@
 package tooloptimize
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,13 +13,13 @@ type countingOptimizer struct {
 	calls int
 }
 
-func (c *countingOptimizer) Optimize(toolset []ToolDesc, profile Profile, level Level, cfg Config) (*Plan, error) {
+func (c *countingOptimizer) Optimize(_ context.Context, toolset []ToolDesc, profile Profile, level Level, cfg Config) (*Plan, error) {
 	c.calls++
 	return Optimize(toolset, profile, level, cfg), nil
 }
 
 func TestHeuristicOptimizerMatchesPureFunction(t *testing.T) {
-	plan, err := HeuristicOptimizer{}.Optimize(catalog(), gitProfile(), LevelScope, Config{})
+	plan, err := HeuristicOptimizer{}.Optimize(context.Background(), catalog(), gitProfile(), LevelScope, Config{})
 	require.NoError(t, err)
 	assert.ElementsMatch(t, []string{"terminal", "git_clone", "git_commit"}, inlineNames(plan))
 }
@@ -28,7 +29,7 @@ func TestCachingOptimizerReusesPlanForSameCatalog(t *testing.T) {
 	opt := NewCachingOptimizer(inner)
 
 	for i := 0; i < 3; i++ {
-		_, err := opt.Optimize(catalog(), gitProfile(), LevelLLMCurate, Config{ContextWindow: 1})
+		_, err := opt.Optimize(context.Background(), catalog(), gitProfile(), LevelLLMCurate, Config{ContextWindow: 1})
 		require.NoError(t, err)
 	}
 	assert.Equal(t, 1, inner.calls, "inner strategy runs once, then serves from cache")
@@ -39,12 +40,12 @@ func TestCachingOptimizerReoptimizesWhenCatalogChanges(t *testing.T) {
 	inner := &countingOptimizer{}
 	opt := NewCachingOptimizer(inner)
 
-	_, err := opt.Optimize(catalog(), gitProfile(), LevelLLMCurate, Config{ContextWindow: 1})
+	_, err := opt.Optimize(context.Background(), catalog(), gitProfile(), LevelLLMCurate, Config{ContextWindow: 1})
 	require.NoError(t, err)
 
 	// Add a tool → catalog hash changes → recompute.
 	changed := append(catalog(), ToolDesc{Name: "git_push", Description: "push a git repo"})
-	_, err = opt.Optimize(changed, gitProfile(), LevelLLMCurate, Config{ContextWindow: 1})
+	_, err = opt.Optimize(context.Background(), changed, gitProfile(), LevelLLMCurate, Config{ContextWindow: 1})
 	require.NoError(t, err)
 
 	assert.Equal(t, 2, inner.calls)

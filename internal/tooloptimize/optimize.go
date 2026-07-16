@@ -114,6 +114,11 @@ type Config struct {
 	// BridgeToolCost is the estimated token cost of the search bridge tools that
 	// replace a deferred tail. Default 300.
 	BridgeToolCost int
+	// OptimizerVariant is an opaque fingerprint of the LLM-optimizer settings
+	// (provider + model + prompt). It participates in CatalogHash so that
+	// changing the optimization model or prompt busts the cache and forces a
+	// re-optimization. Empty for the deterministic levels.
+	OptimizerVariant string
 }
 
 func (c Config) withDefaults() Config {
@@ -175,17 +180,66 @@ func schemaChars(td ToolDesc) int {
 	return n
 }
 
-// isDomain reports whether td is relevant to the profile's domain. Core tools
-// are always considered in-domain. With no keywords, everything is in-domain.
-func (p Profile) isDomain(td ToolDesc) bool {
-	if td.Core {
-		return true
+// entrySearchText builds the BM25 search blob for a tool: its name (with
+// snake_case/dotted/hyphenated segments broken into words so "git_clone" indexes
+// "git" and "clone"), its description, and its top-level parameter names.
+// Mirrors Hermes's _entry_search_text.
+func entrySearchText(td ToolDesc) string {
+	replacer := strings.NewReplacer("_", " ", ".", " ", "-", " ", ":", " ")
+	nameWords := replacer.Replace(td.Name)
+	var params string
+	if props, ok := td.Parameters["properties"].(map[string]any); ok {
+		names := make([]string, 0, len(props))
+		for k := range props {
+			names = append(names, k)
+		}
+		sort.Strings(names)
+		params = strings.Join(names, " ")
 	}
+	return nameWords + " " + td.Description + " " + params
+}
+
+// domainSet returns the set of tool names considered in-domain for the profile,
+// ranked by BM25 against the domain keywords (a stronger signal than substring
+// match, still pure Go — no model). Core tools are always in-domain; with no
+// keywords every tool is in-domain. A substring fallback covers zero-IDF query
+// terms BM25 scores at zero. Note: a genuine vocabulary gap (keyword "gitea" vs
+// tool token "git") is not bridged here — that needs the embedding tier.
+func (p Profile) domainSet(toolset []ToolDesc) map[string]bool {
+	set := make(map[string]bool, len(toolset))
 	if len(p.DomainKeywords) == 0 {
-		return true
+		for _, td := range toolset {
+			set[td.Name] = true
+		}
+		return set
 	}
+
+	candidates := make([]ToolDesc, 0, len(toolset))
+	texts := make([]string, 0, len(toolset))
+	for _, td := range toolset {
+		if td.Core {
+			set[td.Name] = true
+			continue
+		}
+		candidates = append(candidates, td)
+		texts = append(texts, entrySearchText(td))
+	}
+
+	ix := buildBM25Index(texts)
+	query := tokenize(strings.Join(p.DomainKeywords, " "))
+	for i, td := range candidates {
+		if ix.score(query, i) > 0 || substringMatch(td, p.DomainKeywords) {
+			set[td.Name] = true
+		}
+	}
+	return set
+}
+
+// substringMatch is the zero-IDF fallback: true if any keyword occurs literally
+// in the tool's name or description.
+func substringMatch(td ToolDesc, keywords []string) bool {
 	hay := strings.ToLower(td.Name + " " + td.Description)
-	for _, kw := range p.DomainKeywords {
+	for _, kw := range keywords {
 		kw = strings.ToLower(strings.TrimSpace(kw))
 		if kw != "" && strings.Contains(hay, kw) {
 			return true
@@ -242,10 +296,12 @@ func Optimize(toolset []ToolDesc, profile Profile, level Level, cfg Config) *Pla
 	return plan
 }
 
-// partitionDomain splits into (in-domain-or-core, out-of-domain).
+// partitionDomain splits into (in-domain-or-core, out-of-domain) using a
+// BM25-ranked domain membership set computed once over the toolset.
 func partitionDomain(toolset []ToolDesc, profile Profile) (keep, drop []ToolDesc) {
+	inDomain := profile.domainSet(toolset)
 	for _, td := range toolset {
-		if profile.isDomain(td) {
+		if inDomain[td.Name] {
 			keep = append(keep, td)
 		} else {
 			drop = append(drop, td)
